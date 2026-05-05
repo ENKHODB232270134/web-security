@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICN Security — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/table.css" />
+  <link rel="stylesheet" href="../css/modal.css" />
+</head>
+<body data-protected="true" data-page="dashboard">
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="page-shell">
+    <nav class="topbar">
+      <div class="topbar-left">
+        <a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div><span class="topbar-title">ICN SECURITY</span></a>
+        <div class="topbar-div"></div><span class="topbar-sys">Дашбоард</span>
+      </div>
+      <div class="topbar-right">
+        <div class="db-indicator"><div class="db-dot"></div><span>MongoDB Live</span></div>
+        <span class="topbar-clock" data-clock></span>
+        <div class="user-badge"><div class="u-dot" data-user-dot></div><div><div class="u-name" data-user-name></div><div class="u-role" data-user-role></div></div></div>
+        <button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>Гарах</button>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="dash-header"><div class="dash-greeting" id="dashGreeting">Сайн байна уу!</div><div class="dash-sub">Өнөөдрийн тойм — MongoDB database-аас шууд уншиж байна</div></div>
+      <section class="kpi-grid">
+        <div class="kpi" style="--kpi-accent:var(--accent)"><div class="kpi-label">Нийт зөрчил</div><div class="kpi-val" id="kpiIncidents">0</div><div class="kpi-trend">incidents collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--green)"><div class="kpi-label">Нэвтрэлт</div><div class="kpi-val" id="kpiEntries">0</div><div class="kpi-trend">access_logs collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--orange)"><div class="kpi-label">Зочин</div><div class="kpi-val" id="kpiVisitors">0</div><div class="kpi-trend">visitors collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--red)"><div class="kpi-label">Хүлээгдэж буй</div><div class="kpi-val" id="kpiPending">0</div><div class="kpi-trend down">Шийдвэрлэх шаардлагатай</div></div>
+      </section>
+      <section class="kpi-grid">
+        <div class="kpi" style="--kpi-accent:var(--purple)"><div class="kpi-label">Ажилтан</div><div class="kpi-val" id="kpiEmployees">0</div><div class="kpi-trend">employees collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--cyan)"><div class="kpi-label">Хэлтэс</div><div class="kpi-val" id="kpiDepts">0</div><div class="kpi-trend">departments collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--accent2)"><div class="kpi-label">Байршил</div><div class="kpi-val" id="kpiLocations">0</div><div class="kpi-trend">locations collection</div></div>
+        <div class="kpi" style="--kpi-accent:var(--orange)"><div class="kpi-label">Эргүүл</div><div class="kpi-val" id="kpiInspections">0</div><div class="kpi-trend">inspections collection</div></div>
+      </section>
+      <section class="mod-grid">
+        <div class="mod-card" onclick="goTo('incidents')"><span class="mod-badge badge badge-blue">incidents</span><div class="mod-icon" style="background:rgba(59,130,246,.1)"><svg style="stroke:var(--accent)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg></div><div class="mod-name">Зөрчлийн бүртгэл</div><div class="mod-desc">incident_type, severity, status, location</div></div>
+        <div class="mod-card" onclick="goTo('access')"><span class="mod-badge badge badge-green">access_logs</span><div class="mod-icon" style="background:var(--green-bg)"><svg style="stroke:var(--green)" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg></div><div class="mod-name">Нэвтрэх / Гарах</div><div class="mod-desc">person_type, access_type, access_time</div></div>
+        <div class="mod-card" onclick="goTo('visitors')"><span class="mod-badge badge badge-orange">visitors</span><div class="mod-icon" style="background:var(--orange-bg)"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></div><div class="mod-name">Зочны бүртгэл</div><div class="mod-desc">organisation, purpose, permit, status</div></div>
+        <div class="mod-card" onclick="goTo('inspections')"><span class="mod-badge badge badge-purple">inspections</span><div class="mod-icon" style="background:var(--purple-bg)"><svg style="stroke:var(--purple)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg></div><div class="mod-name">Үзлэг / Эргүүл</div><div class="mod-desc">route, checklist, inspected_by</div></div>
+        <div class="mod-card" onclick="goTo('notifications')"><span class="mod-badge badge badge-blue">notifications</span><div class="mod-icon" style="background:rgba(6,182,212,.1)"><svg style="stroke:var(--cyan)" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /></svg></div><div class="mod-name">Мэдэгдэл</div><div class="mod-desc">title, message, read/unread status</div></div>
+        <div class="mod-card" onclick="goTo('reports')"><span class="mod-badge badge badge-green">reports</span><div class="mod-icon" style="background:var(--green-bg)"><svg style="stroke:var(--green)" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg></div><div class="mod-name">Тайлан</div><div class="mod-desc">period, metrics, file_path</div></div>
+        <div class="mod-card" onclick="goTo('rbac')"><span class="mod-badge badge badge-orange">users+roles</span><div class="mod-icon" style="background:var(--orange-bg)"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg></div><div class="mod-name">RBAC</div><div class="mod-desc">JWT auth, role based access control</div></div>
+        <div class="mod-card" onclick="goTo('employees')"><span class="mod-badge badge badge-purple">employees</span><div class="mod-icon" style="background:var(--purple-bg)"><svg style="stroke:var(--purple)" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Z" /><path d="M20 21a8 8 0 0 0-16 0" /></svg></div><div class="mod-name">Ажилтан</div><div class="mod-desc">employees, departments, locations</div></div>
+        <div class="mod-card" onclick="goTo('audit')"><span class="mod-badge badge badge-gray">audit_logs</span><div class="mod-icon" style="background:rgba(100,116,139,.1)"><svg style="stroke:var(--text2)" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8" /><rect x="1" y="3" width="22" height="5" /></svg></div><div class="mod-name">Архив &amp; Аудит</div><div class="mod-desc">action_type, entity_name, ip_address</div></div>
+      </section>
+      <section class="stats-grid" style="margin-top:24px">
+        <div class="table-wrap"><div class="table-toolbar">Сүүлийн зөрчлүүд</div><div class="table-scroll"><table><thead><tr><th>code</th><th>type</th><th>location</th><th>severity</th><th>status</th></tr></thead><tbody id="recentIncidents"></tbody></table></div></div>
+        <div class="table-wrap"><div class="table-toolbar">Сүүлийн нэвтрэлт</div><div class="table-scroll"><table><thead><tr><th>code</th><th>person</th><th>location</th><th>type</th></tr></thead><tbody id="recentAccess"></tbody></table></div></div>
+      </section>
+    </main>
+    <footer class="page-footer"><span>ICN — Мэдээлэл холбооны сүлжээ ХХК | О.Энх-Од B232270134</span><span>Express + MongoDB + JWT</span></footer>
+  </div>
+  <script src="../js/api.js"></script><script src="../js/app.js"></script><script src="../js/dashboard.js"></script>
+</body>
+</html>

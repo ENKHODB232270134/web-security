@@ -1,0 +1,32 @@
+{
+  "name": "icn-security-web-app",
+  "version": "1.0.0",
+  "description": "ICN Security / Аюулгүй байдлын бүртгэлийн систем - Express + MongoDB web app",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "seed": "node backend/seed/seed.js"
+  },
+  "keywords": [
+    "security",
+    "mongodb",
+    "express",
+    "rbac"
+  ],
+  "author": "ICN Security",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

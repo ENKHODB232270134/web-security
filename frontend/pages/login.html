@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICN Security — Аюулгүй байдлын бүртгэлийн систем</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/auth.css" />
+  <link rel="stylesheet" href="../css/modal.css" />
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+  <main class="login-page">
+    <div class="login-wrap">
+      <section class="login-left">
+        <div class="tag"><span class="status-dot"></span>ICN — Аюулгүй байдал</div>
+        <h1>Аюулгүй<br />байдлын<br /><em>Бүртгэлийн</em><br />Систем</h1>
+        <p>Мэдээлэл холбооны сүлжээ ХХК-ийн аюулгүй байдлын бүртгэл, хяналт, тайлагналыг нэгдсэн байдлаар удирдах платформ.</p>
+        <div class="stat-cards">
+          <div class="stat-c"><div class="stat-n">10</div><div class="stat-l">Модуль</div></div>
+          <div class="stat-c"><div class="stat-n">24/7</div><div class="stat-l">Хяналт</div></div>
+          <div class="stat-c"><div class="stat-n">RBAC</div><div class="stat-l">Хандалт</div></div>
+          <div class="stat-c"><div class="stat-n" id="dbRecordCount">API</div><div class="stat-l">MongoDB</div></div>
+        </div>
+        <div id="dbStatusBanner" class="db-banner"><span class="db-dot"></span><span id="dbStatusTxt">Backend API шалгаж байна...</span></div>
+      </section>
+
+      <section class="login-card" id="loginCard">
+        <div class="login-card-bar"></div>
+        <div id="successState" class="success-wrap">
+          <div class="success-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg></div>
+          <div class="success-title">Амжилттай нэвтэрлээ</div>
+          <div class="success-user" id="suName"></div>
+          <div class="success-role" id="suRole"></div>
+          <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        </div>
+
+        <div id="mainLoginState">
+          <div class="login-card-head">
+            <div class="shield-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+              <div class="shield-ring"></div>
+            </div>
+            <div>
+              <div class="sys-tag">F.CSM314 — О.Энх-Од B232270134</div>
+              <div class="sys-name">Аюулгүй байдлын<br />бүртгэлийн програм</div>
+            </div>
+          </div>
+          <div class="login-body">
+            <div class="status-pill"><div class="status-dot"></div><span id="clockInLogin">Ачааллаж байна...</span></div>
+            <div class="demo-label">Demo хэрэглэгч</div>
+            <div class="demo-chips" id="loginChipsContainer"></div>
+            <div class="err-box hidden" id="errBox"><span id="errMsg"></span></div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Нэвтрэх нэр</span></div>
+              <div class="inp-wrap">
+                <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></span>
+                <input type="text" id="loginUser" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Нууц үг</span></div>
+              <div class="inp-wrap">
+                <span class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span>
+                <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()" />
+                <button class="eye-btn" type="button" onclick="toggleEye()">
+                  <svg id="eyeShow" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                  <svg id="eyeHide" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                </button>
+              </div>
+            </div>
+            <button class="btn-login" id="loginBtn" onclick="doLogin()">НЭВТРЭХ</button>
+          </div>
+          <div class="login-footer">
+            <span class="footer-txt">ICN — Мэдээлэл холбооны сүлжээ ХХК</span>
+            <span class="footer-txt">Express + MongoDB</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="login-right">
+        <div class="demo-label" style="margin-bottom:12px">MongoDB collections</div>
+        <ul class="mod-list">
+          <li><span class="mod-dot" style="background:var(--accent)"></span>incidents — Зөрчлийн бүртгэл</li>
+          <li><span class="mod-dot" style="background:var(--accent)"></span>access_logs — Нэвтрэх/Гарах</li>
+          <li><span class="mod-dot" style="background:var(--orange)"></span>visitors — Зочны бүртгэл</li>
+          <li><span class="mod-dot" style="background:var(--green)"></span>inspections — Эргүүлийн бүртгэл</li>
+          <li><span class="mod-dot" style="background:var(--cyan)"></span>notifications — Мэдэгдэл</li>
+          <li><span class="mod-dot" style="background:var(--green)"></span>reports — Тайлан</li>
+          <li><span class="mod-dot" style="background:var(--orange)"></span>users + roles — RBAC</li>
+          <li><span class="mod-dot" style="background:var(--purple)"></span>employees / departments / locations</li>
+          <li><span class="mod-dot" style="background:var(--cyan)"></span>audit_logs / attachments / permits</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/auth.js"></script>
+</body>
+</html>

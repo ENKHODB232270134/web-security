@@ -1,0 +1,135 @@
+.table-wrap {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel2);
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  background: var(--panel);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.search-wrap input:focus {
+  border-color: var(--accent);
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+}
+
+.search-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--text3);
+  stroke-width: 2;
+}
+
+.filter-chip {
+  padding: 7px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(30, 45, 69, 0.55);
+}
+
+tbody tr:last-child {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: var(--panel2);
+}
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 12px;
+  vertical-align: top;
+}
+
+.tbl-action {
+  margin: 2px;
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.tbl-action.danger:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.table-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .search-wrap {
+    width: 100%;
+    max-width: none;
+    flex-basis: 100%;
+  }
+}

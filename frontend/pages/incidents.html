@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICN Security — Зөрчлийн бүртгэл</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" /><link rel="stylesheet" href="../css/table.css" /><link rel="stylesheet" href="../css/modal.css" />
+</head>
+<body data-protected="true" data-page="incidents">
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="page-shell">
+    <nav class="topbar"><div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">incidents</span></div><div class="topbar-right"><span class="topbar-clock" data-clock></span><div class="user-badge"><div class="u-dot" data-user-dot></div><div><div class="u-name" data-user-name></div><div class="u-role" data-user-role></div></div></div><button class="logout-btn" onclick="doLogout()">Гарах</button></div></nav>
+    <main class="content">
+      <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Зөрчлийн бүртгэл</span></div>
+      <div class="page-header"><div><div class="page-title">Зөрчлийн бүртгэл</div><div class="page-sub">ERD: incidents — incident_type, location_id FK, severity ENUM, status ENUM, reported_by FK</div></div><button class="btn-add" onclick="document.getElementById('incidentId').value='';openModal('incidentModal')">Зөрчил бүртгэх</button></div>
+      <div class="table-wrap">
+        <div class="table-toolbar"><div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg></span><input type="text" placeholder="Хайх..." oninput="filterTable('incidentsTable',this.value)" /></div><button class="filter-chip on" onclick="filterByStatus('incidentsTable','',this)">Бүгд</button><button class="filter-chip" onclick="filterByStatus('incidentsTable','Нэн яаралтай',this)">Нэн яаралтай</button><button class="filter-chip" onclick="filterByStatus('incidentsTable','Хүлээгдэж буй',this)">Хүлээгдэж буй</button><button class="filter-chip" onclick="filterByStatus('incidentsTable','Шийдвэрлэсэн',this)">Шийдвэрлэсэн</button></div>
+        <div class="table-scroll"><table id="incidentsTable"><thead><tr><th>incident_id</th><th>created_at</th><th>incident_type</th><th>location</th><th>severity</th><th>status</th><th>reported_by</th><th>assigned_to</th><th>Үйлдэл</th></tr></thead><tbody id="incidentsBody"></tbody></table></div>
+        <div class="table-foot"><span id="incidentsCount">Нийт 0 бүртгэл</span><span>incidents collection</span></div>
+      </div>
+    </main>
+    <footer class="page-footer"><span>ICN</span><span>incidents API</span></footer>
+  </div>
+  <div class="overlay hidden" id="incidentModal"><div class="modal"><div class="modal-top-bar"></div><div class="modal-head"><div class="modal-title">Зөрчил бүртгэх — incidents</div><button class="modal-close" onclick="closeModal('incidentModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button></div><form onsubmit="submitIncident(event)"><div class="modal-body"><input type="hidden" id="incidentId" /><div class="form-row"><div class="form-group"><label class="form-label">incident_date</label><input type="date" class="form-input" id="incidentDate" /></div><div class="form-group"><label class="form-label">severity ENUM</label><select class="form-select" id="incidentSeverity"><option>Нэн яаралтай</option><option>Өндөр</option><option>Дунд</option><option>Бага</option></select></div></div><div class="form-group"><label class="form-label">incident_type</label><select class="form-select" id="incidentType"><option>Хаалга нээлттэй үлдсэн</option><option>Камер ажиллахгүй</option><option>Зөвшөөрөлгүй нэвтрэлт</option><option>Дохиолол худал дуугарсан</option><option>Гал унтраагч дуусгавар</option><option>Хашааны гэмтэл</option><option>Бусад</option></select></div><div class="form-row"><div class="form-group"><label class="form-label">location_id FK</label><select class="form-select" id="incidentLocation"></select></div><div class="form-group"><label class="form-label">assigned_to FK</label><select class="form-select" id="incidentAssigned"></select></div></div><div class="form-group"><label class="form-label">status</label><select class="form-select" id="incidentStatus"><option>Хүлээгдэж буй</option><option>Шийдвэрлэж байна</option><option>Шийдвэрлэсэн</option><option>Хаагдсан</option></select></div><div class="form-group"><label class="form-label">description</label><textarea class="form-textarea" id="incidentDescription" placeholder="Зөрчлийн дэлгэрэнгүй тайлбар..."></textarea></div></div><div class="modal-foot"><button type="button" class="btn-cancel" onclick="closeModal('incidentModal')">Болих</button><button class="btn-save">Хадгалах</button></div></form></div></div>
+  <script src="../js/api.js"></script><script src="../js/app.js"></script><script src="../js/incidents.js"></script>
+</body>
+</html>

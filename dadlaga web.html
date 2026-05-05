@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ICN — Аюулгүй байдлын бүртгэлийн систем</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;
+  --panel:#111827;
+  --panel2:#1a2236;
+  --border:#1e2d45;
+  --border2:#243350;
+  --text:#e8edf5;
+  --text2:#8fa3c0;
+  --text3:#4a6080;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --accent-glow:rgba(59,130,246,0.15);
+  --green:#10b981;
+  --green-bg:rgba(16,185,129,0.1);
+  --red:#ef4444;
+  --red-bg:rgba(239,68,68,0.1);
+  --orange:#f59e0b;
+  --orange-bg:rgba(245,158,11,0.1);
+  --purple:#8b5cf6;
+  --purple-bg:rgba(139,92,246,0.1);
+  --cyan:#06b6d4;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Space Grotesk',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:0.4;pointer-events:none;z-index:0}
+.page{display:none;min-height:100vh;position:relative;z-index:1}
+.page.active{display:flex;flex-direction:column}
+#loginPage{display:none;min-height:100vh;position:relative;z-index:1}
+#loginPage.active{display:flex}
+.grid-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.login-wrap{display:grid;grid-template-columns:1fr 440px 1fr;min-height:100vh;align-items:center;width:100%;position:relative;z-index:1}
+.login-left{padding:48px;animation:fadeUp .8s ease both}
+.login-right{padding:48px;animation:fadeUp .9s ease .1s both}
+.login-card{background:var(--panel);border:1px solid var(--border2);border-radius:12px;overflow:hidden;box-shadow:0 0 80px rgba(59,130,246,0.08),0 0 0 1px rgba(59,130,246,0.05);animation:fadeUp .6s ease both}
+.login-card-bar{height:3px;background:linear-gradient(90deg,var(--accent),var(--cyan),var(--accent));background-size:200% 100%;animation:slide 3s linear infinite}
+@keyframes slide{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.login-card-head{padding:28px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.shield-icon{width:48px;height:48px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.shield-icon svg{width:22px;height:22px;fill:var(--accent)}
+.shield-ring{position:absolute;inset:-6px;border:1px solid rgba(59,130,246,0.2);border-radius:14px;animation:pulse 2.5s ease-out infinite}
+@keyframes pulse{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
+.sys-tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.sys-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.3}
+.login-body{padding:28px 32px}
+.status-pill{display:flex;align-items:center;gap:8px;background:var(--green-bg);border:1px solid rgba(16,185,129,0.25);border-radius:6px;padding:8px 14px;margin-bottom:22px;font-family:var(--mono);font-size:11px;color:var(--green)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.demo-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.demo-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:22px;max-height:160px;overflow-y:auto}
+.demo-chip{background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;text-align:left;line-height:1.4}
+.demo-chip:hover,.demo-chip.active{border-color:var(--accent);color:var(--text);background:rgba(59,130,246,0.08)}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.err-box{background:var(--red-bg);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:16px;display:flex;align-items:flex-start;gap:8px}
+.err-box.hidden{display:none}
+.field{margin-bottom:16px}
+.field-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.field-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+.field-link{font-size:11px;color:var(--accent);cursor:pointer;text-decoration:none}
+.inp-wrap{position:relative}
+.inp-wrap input{width:100%;background:var(--panel2);border:1px solid var(--border2);color:var(--text);padding:11px 14px 11px 42px;font-family:var(--mono);font-size:13px;border-radius:7px;outline:none;transition:border-color .2s,box-shadow .2s}
+.inp-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.12)}
+.inp-wrap input::placeholder{color:var(--text3)}
+.inp-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);display:flex}
+.inp-icon svg{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.eye-btn{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;display:flex;padding:2px}
+.eye-btn svg{width:16px;height:16px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.attempt-row{display:flex;gap:5px;margin-top:8px;align-items:center}
+.adot{width:7px;height:7px;border-radius:50%;background:var(--border2);border:1px solid var(--border2);transition:all .2s}
+.adot.used{background:var(--red);border-color:var(--red)}
+.atxt{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:6px}
+.btn-login{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:background .2s,transform .1s,box-shadow .2s;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.btn-login:hover:not(:disabled){background:#2563eb;transform:translateY(-1px);box-shadow:0 4px 24px rgba(59,130,246,0.4)}
+.btn-login:disabled{background:rgba(59,130,246,.4);cursor:not-allowed;box-shadow:none}
+.login-footer{border-top:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center}
+.footer-txt{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.success-wrap{padding:48px 32px;text-align:center;display:none}
+.success-wrap.show{display:block;animation:fadeUp .3s ease}
+.success-check{width:56px;height:56px;background:var(--green-bg);border:1px solid rgba(16,185,129,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.success-check svg{width:26px;height:26px;stroke:var(--green);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.success-title{font-size:22px;font-weight:700;color:var(--green);margin-bottom:6px}
+.success-user{font-size:15px;color:var(--text);margin-bottom:3px}
+.success-role{font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:8px}
+.success-msg{font-size:12px;color:var(--text3);margin-bottom:24px}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);width:0%;transition:width 2s linear}
+.login-left .tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-bg);border:1px solid rgba(16,185,129,0.25);padding:5px 14px;border-radius:4px;margin-bottom:24px}
+.login-left h1{font-size:42px;font-weight:700;line-height:1.1;margin-bottom:16px}
+.login-left h1 em{font-style:normal;color:var(--accent)}
+.login-left p{font-size:13px;color:var(--text2);line-height:1.75;max-width:300px;margin-bottom:32px}
+.stat-cards{display:flex;gap:1px;background:var(--border);border-radius:8px;overflow:hidden;width:fit-content;margin-bottom:32px}
+.stat-c{background:var(--panel);padding:16px 22px}
+.stat-n{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--accent)}
+.stat-l{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:2px}
+.mod-list{list-style:none;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.mod-list li{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--text2);padding:9px 14px;border-bottom:1px solid var(--border)}
+.mod-list li:last-child{border-bottom:none}
+.mod-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.topbar{background:rgba(17,24,39,0.95);border-bottom:1px solid var(--border);padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.topbar-shield{width:32px;height:32px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.topbar-shield svg{width:16px;height:16px;fill:var(--accent)}
+.topbar-title{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);letter-spacing:.06em}
+.topbar-div{width:1px;height:20px;background:var(--border)}
+.topbar-sys{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-clock{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.user-badge{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:5px 12px}
+.u-dot{width:8px;height:8px;border-radius:50%}
+.u-name{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text)}
+.u-role{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.logout-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.back-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;margin-right:4px}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.back-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.content{flex:1;padding:32px;max-width:1280px;margin:0 auto;width:100%}
+.breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+.bc-link{color:var(--accent);cursor:pointer}
+.bc-link:hover{text-decoration:underline}
+.dash-header{margin-bottom:28px}
+.dash-greeting{font-size:28px;font-weight:700;margin-bottom:4px}
+.dash-sub{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:22px;position:relative;overflow:hidden;animation:fadeUp .5s ease both}
+.kpi-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.kpi-val{font-family:var(--mono);font-size:36px;font-weight:600;color:var(--text);line-height:1;margin-bottom:6px}
+.kpi-trend{font-family:var(--mono);font-size:11px;color:var(--green)}
+.kpi-trend.down{color:var(--red)}
+.kpi-trend.warn{color:var(--orange)}
+.mod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mod-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;cursor:pointer;transition:all .2s;animation:fadeUp .5s ease both;position:relative;overflow:hidden}
+.mod-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 70%,rgba(59,130,246,0.03));pointer-events:none}
+.mod-card:hover{border-color:var(--accent);box-shadow:0 0 24px rgba(59,130,246,0.12);transform:translateY(-2px)}
+.mod-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.mod-icon svg{width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mod-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.mod-desc{font-size:12px;color:var(--text3);line-height:1.6}
+.mod-badge{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;padding:3px 10px;border-radius:3px;font-weight:600}
+.badge-active{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.badge-dev{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(245,158,11,0.3)}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-sub{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.btn-add{background:var(--accent);color:#fff;border:none;padding:9px 18px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-radius:7px;transition:all .2s;display:flex;align-items:center;gap:8px;box-shadow:0 0 16px rgba(59,130,246,0.25)}
+.btn-add:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-add svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.table-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.table-toolbar{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--panel2);flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;max-width:300px}
+.search-wrap input{width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 36px;font-family:var(--mono);font-size:12px;border-radius:6px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%)}
+.search-icon svg{width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.filter-chip{background:var(--panel);border:1px solid var(--border);color:var(--text3);padding:6px 14px;font-family:var(--mono);font-size:11px;cursor:pointer;border-radius:5px;transition:all .15s}
+.filter-chip:hover,.filter-chip.on{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,0.08)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 16px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);border-bottom:1px solid var(--border);text-align:left;background:var(--panel2);white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(30,45,69,.5);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--panel2)}
+tbody td{padding:12px 16px;font-size:12px;color:var(--text2);font-family:var(--mono)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:4px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.05em}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.badge-orange{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(245,158,11,.3)}
+.badge-blue{background:rgba(59,130,246,0.12);color:var(--accent2);border:1px solid rgba(59,130,246,.3)}
+.badge-gray{background:rgba(100,116,139,.1);color:var(--text3);border:1px solid var(--border)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.tbl-action{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--text3);cursor:pointer;transition:all .15s}
+.tbl-action:hover{border-color:var(--accent);color:var(--accent)}
+.tbl-action.danger:hover{border-color:var(--red);color:var(--red)}
+.table-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;color:var(--text3);background:var(--panel2)}
+.overlay{position:fixed;inset:0;background:rgba(10,14,26,.85);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.hidden{display:none}
+.modal{background:var(--panel);border:1px solid var(--border2);border-radius:12px;width:540px;max-width:95vw;box-shadow:0 0 60px rgba(59,130,246,0.1),0 40px 80px rgba(0,0,0,.5);overflow:hidden;animation:fadeUp .2s ease}
+.modal-top-bar{height:3px;background:linear-gradient(90deg,var(--accent),var(--cyan))}
+.modal-head{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--panel2)}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:4px;display:flex;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+.modal-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.modal-body{padding:24px 28px;display:flex;flex-direction:column;gap:16px}
+.modal-foot{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--panel2)}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+.form-input,.form-select,.form-textarea{background:var(--panel2);border:1px solid var(--border2);color:var(--text);padding:9px 12px;font-family:var(--mono);font-size:12px;border-radius:6px;outline:none;transition:border-color .2s;width:100%}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn-cancel{background:none;border:1px solid var(--border2);color:var(--text2);padding:8px 18px;font-family:var(--mono);font-size:12px;cursor:pointer;border-radius:6px;transition:all .15s}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+.btn-save{background:var(--accent);color:#fff;border:none;padding:8px 22px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;border-radius:6px;transition:background .2s}
+.btn-save:hover{background:#2563eb}
+.btn-danger{background:var(--red);color:#fff;border:none;padding:8px 22px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;border-radius:6px;transition:background .2s}
+.btn-danger:hover{background:#dc2626}
+.notif-list{display:flex;flex-direction:column;gap:12px}
+.notif-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px 22px;display:flex;align-items:flex-start;gap:14px;transition:all .15s;cursor:pointer}
+.notif-card:hover{border-color:var(--border2);box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.notif-card.unread{border-left:3px solid var(--accent)}
+.notif-icon-wrap{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notif-icon-wrap svg{width:18px;height:18px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.notif-content{flex:1}
+.notif-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.notif-msg{font-size:12px;color:var(--text2);line-height:1.6}
+.notif-time{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:6px}
+.stats-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px}
+.chart-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:20px}
+.bar-chart{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{font-family:var(--mono);font-size:11px;color:var(--text2);width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.bar-val{font-family:var(--mono);font-size:11px;color:var(--text2);width:32px;text-align:right}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:16px}
+.legend-list{list-style:none;width:100%}
+.legend-item{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:6px}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.rbac-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.user-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px;display:flex;align-items:flex-start;gap:14px;transition:all .15s}
+.user-card:hover{border-color:var(--border2)}
+.user-avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0}
+.user-info{flex:1}
+.user-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.user-dept{font-family:var(--mono);font-size:11px;color:var(--text2);margin-bottom:6px}
+.user-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.user-actions{display:flex;gap:6px;flex-shrink:0}
+.archive-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.arch-stat{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px}
+.arch-stat-val{font-family:var(--mono);font-size:32px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.arch-stat-label{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.emp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.dept-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.dept-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:20px}
+.dept-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.dept-desc{font-size:12px;color:var(--text3);margin-bottom:10px}
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-family:var(--mono);font-size:12px;color:var(--text);box-shadow:0 4px 24px rgba(0,0,0,.4);display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;min-width:280px}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.page-footer{border-top:1px solid var(--border);padding:14px 32px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--text3)}
+.db-indicator{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--green)}
+.db-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s ease-in-out infinite}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+.nav-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:4px}
+.nav-tab{font-family:var(--mono);font-size:11px;color:var(--text3);padding:7px 16px;border-radius:5px;cursor:pointer;transition:all .15s;border:none;background:none}
+.nav-tab.active{background:rgba(59,130,246,0.12);color:var(--accent);border:1px solid rgba(59,130,246,.3)}
+.nav-tab:hover:not(.active){color:var(--text2)}
+.info-box{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7}
+.info-box strong{color:var(--accent)}
+.db-banner{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:6px;padding:6px 14px;font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.08em}
+.db-banner.warn{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);color:var(--orange)}
+/* Password visibility toggle in form */
+.pass-wrap{position:relative}
+.pass-wrap .form-input{padding-right:36px}
+.pass-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);display:flex;padding:2px;transition:color .15s}
+.pass-eye:hover{color:var(--text2)}
+.pass-eye svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* Expire badge */
+.expire-ok{color:var(--green);font-size:9px}
+.expire-warn{color:var(--orange);font-size:9px}
+.expire-over{color:var(--red);font-size:9px}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="toast-container" id="toastContainer"></div>
+ 
+<!-- LOGIN -->
+<div id="loginPage" class="active">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="tag"><span class="status-dot"></span>ICN — Аюулгүй байдал</div>
+      <h1>Аюулгүй<br>байдлын<br><em>Бүртгэлийн</em><br>Систем</h1>
+      <p>Мэдээлэл холбооны сүлжээ ХХК-ийн аюулгүй байдлын бүртгэл, хяналт, тайлагналыг нэгдсэн байдлаар удирдах платформ.</p>
+      <div class="stat-cards">
+        <div class="stat-c"><div class="stat-n">10</div><div class="stat-l">Модуль</div></div>
+        <div class="stat-c"><div class="stat-n">24/7</div><div class="stat-l">Хяналт</div></div>
+        <div class="stat-c"><div class="stat-n">RBAC</div><div class="stat-l">Хандалт</div></div>
+        <div class="stat-c"><div class="stat-n" id="dbRecordCount">0</div><div class="stat-l">Бүртгэл</div></div>
+      </div>
+      <div id="dbStatusBanner" class="db-banner"><span class="db-dot"></span><span id="dbStatusTxt">Мэдээллийн сан холбогдож байна...</span></div>
+    </div>
+    <div class="login-card" id="loginCard">
+      <div class="login-card-bar"></div>
+      <div id="successState" class="success-wrap">
+        <div class="success-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="success-title">Амжилттай нэвтэрлээ</div>
+        <div class="success-user" id="suName"></div>
+        <div class="success-role" id="suRole"></div>
+        <div class="success-msg">Системд шилжиж байна...</div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      </div>
+      <div id="mainLoginState">
+        <div class="login-card-head">
+          <div class="shield-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div class="shield-ring"></div>
+          </div>
+          <div>
+            <div class="sys-tag">F.CSM314 — О.Энх-Од B232270134</div>
+            <div class="sys-name">Аюулгүй байдлын<br>бүртгэлийн програм</div>
+          </div>
+        </div>
+        <div class="login-body">
+          <div class="status-pill"><div class="status-dot"></div><span id="clockInLogin">Ачааллаж байна...</span></div>
+          <div class="demo-label">Хэрэглэгч сонгох</div>
+          <!-- Dynamic login chips — JS-ээр дүүргэгдэнэ -->
+          <div class="demo-chips" id="loginChipsContainer"></div>
+          <div class="err-box hidden" id="errBox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span id="errMsg"></span>
+          </div>
+          <div class="field">
+            <div class="field-top"><span class="field-label">Нэвтрэх нэр</span></div>
+            <div class="inp-wrap">
+              <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <input type="text" id="loginUser" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-top"><span class="field-label">Нууц үг</span></div>
+            <div class="inp-wrap">
+              <span class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()"/>
+              <button class="eye-btn" onclick="toggleEye()">
+                <svg id="eyeShow" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="eyeHide" viewBox="0 0 24 24" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <div class="attempt-row" id="attemptRow" style="display:none">
+              <div class="adot" id="ad0"></div><div class="adot" id="ad1"></div><div class="adot" id="ad2"></div><div class="adot" id="ad3"></div><div class="adot" id="ad4"></div>
+              <span class="atxt" id="attemptTxt"></span>
+            </div>
+          </div>
+          <button class="btn-login" id="loginBtn" onclick="doLogin()">НЭВТРЭХ</button>
+        </div>
+        <div class="login-footer">
+          <span class="footer-txt">ICN — Мэдээлэл холбооны сүлжээ ХХК</span>
+          <span class="footer-txt">v3.2.0 ERD</span>
+        </div>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="demo-label" style="margin-bottom:12px">PDF ERD — Мэдээллийн сангийн хүснэгтүүд</div>
+      <ul class="mod-list">
+        <li><span class="mod-dot" style="background:var(--accent)"></span>incidents — Зөрчлийн бүртгэл</li>
+        <li><span class="mod-dot" style="background:var(--accent)"></span>access_logs — Нэвтрэх/Гарах</li>
+        <li><span class="mod-dot" style="background:var(--accent)"></span>visitors — Зочны бүртгэл</li>
+        <li><span class="mod-dot" style="background:var(--green)"></span>inspections — Эргүүлийн бүртгэл</li>
+        <li><span class="mod-dot" style="background:var(--green)"></span>notifications — Мэдэгдэл</li>
+        <li><span class="mod-dot" style="background:var(--green)"></span>reports — Тайлан</li>
+        <li><span class="mod-dot" style="background:var(--orange)"></span>users + roles — RBAC</li>
+        <li><span class="mod-dot" style="background:var(--orange)"></span>employees — Ажилтан</li>
+        <li><span class="mod-dot" style="background:var(--purple)"></span>departments — Хэлтэс</li>
+        <li><span class="mod-dot" style="background:var(--purple)"></span>locations — Байршил</li>
+        <li><span class="mod-dot" style="background:var(--cyan)"></span>audit_logs — Аудит лог</li>
+        <li><span class="mod-dot" style="background:var(--cyan)"></span>attachments + permits</li>
+      </ul>
+    </div>
+  </div>
+</div>
+ 
+<!-- DASHBOARD -->
+<div id="dashPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left">
+      <a class="topbar-logo" onclick="goTo('dashboard')">
+        <div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <span class="topbar-title">ICN SECURITY</span>
+      </a>
+      <div class="topbar-div"></div>
+      <span class="topbar-sys">Дашбоард</span>
+    </div>
+    <div class="topbar-right">
+      <div class="db-indicator"><div class="db-dot"></div><span id="dbModeTxt">ERD Live</span></div>
+      <span class="topbar-clock" id="dashClock"></span>
+      <div class="user-badge"><div class="u-dot" id="dashDot"></div><div><div class="u-name" id="dashName"></div><div class="u-role" id="dashRole"></div></div></div>
+      <button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button>
+    </div>
+  </nav>
+  <div class="content">
+    <div class="dash-header">
+      <div class="dash-greeting" id="dashGreeting">Сайн байна уу!</div>
+      <div class="dash-sub">Өнөөдрийн тойм — PDF ERD мэдээллийн сантай бүрэн нийцсэн</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">Нийт зөрчил (incidents)</div><div class="kpi-val" id="kpiIncidents">0</div><div class="kpi-trend">ERD: incident_id, severity, status</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--accent)"></div></div>
+      <div class="kpi"><div class="kpi-label">Нэвтрэлт (access_logs)</div><div class="kpi-val" id="kpiEntries">0</div><div class="kpi-trend">ERD: visitor_id, access_type</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--green)"></div></div>
+      <div class="kpi"><div class="kpi-label">Зочин (visitors)</div><div class="kpi-val" id="kpiVisitors">0</div><div class="kpi-trend">ERD: organisation, purpose</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--orange)"></div></div>
+      <div class="kpi"><div class="kpi-label">Хүлээгдэж буй</div><div class="kpi-val" id="kpiPending">0</div><div class="kpi-trend down">Шийдвэрлэх шаардлагатай</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--red)"></div></div>
+    </div>
+    <div class="kpi-grid" style="margin-bottom:28px">
+      <div class="kpi"><div class="kpi-label">Ажилтан (employees)</div><div class="kpi-val" id="kpiEmployees">0</div><div class="kpi-trend">ERD: first_name, position, dept</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--purple)"></div></div>
+      <div class="kpi"><div class="kpi-label">Хэлтэс (departments)</div><div class="kpi-val" id="kpiDepts">0</div><div class="kpi-trend">ERD: department_name</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--cyan)"></div></div>
+      <div class="kpi"><div class="kpi-label">Байршил (locations)</div><div class="kpi-val" id="kpiLocations">0</div><div class="kpi-trend">ERD: location_name, address</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--accent2)"></div></div>
+      <div class="kpi"><div class="kpi-label">Эргүүл (inspections)</div><div class="kpi-val" id="kpiInspections">0</div><div class="kpi-trend">ERD: route, checklist items</div><div style="position:absolute;top:0;right:0;width:3px;height:100%;background:var(--orange)"></div></div>
+    </div>
+    <div class="mod-grid">
+      <div class="mod-card" onclick="goTo('incidents')"><span class="mod-badge badge-active">incidents</span><div class="mod-icon" style="background:rgba(59,130,246,0.1)"><svg style="stroke:var(--accent)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="mod-name">Зөрчлийн бүртгэл</div><div class="mod-desc">incidents хүснэгт — incident_id, type, severity, location, status</div></div>
+      <div class="mod-card" onclick="goTo('access')"><span class="mod-badge badge-active">access_logs</span><div class="mod-icon" style="background:var(--green-bg)"><svg style="stroke:var(--green)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="mod-name">Нэвтрэх / Гарах бүртгэл</div><div class="mod-desc">access_logs хүснэгт — visitor_id, access_type, access_time</div></div>
+      <div class="mod-card" onclick="goTo('visitors')"><span class="mod-badge badge-active">visitors</span><div class="mod-icon" style="background:var(--orange-bg)"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="mod-name">Зочны бүртгэл</div><div class="mod-desc">visitors хүснэгт — first_name, organisation, purpose, status</div></div>
+      <div class="mod-card" onclick="goTo('inspections')"><span class="mod-badge badge-active">inspections</span><div class="mod-icon" style="background:var(--purple-bg)"><svg style="stroke:var(--purple)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="mod-name">Үзлэг / Эргүүлийн бүртгэл</div><div class="mod-desc">inspections + inspection_items — checklist, route, status</div></div>
+      <div class="mod-card" onclick="goTo('notifications')"><span class="mod-badge badge-active">notifications</span><div class="mod-icon" style="background:rgba(6,182,212,.1)"><svg style="stroke:var(--cyan)" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div class="mod-name">Мэдэгдлийн систем</div><div class="mod-desc">notifications хүснэгт — user_id, message, status, sent_at</div></div>
+      <div class="mod-card" onclick="goTo('reports')"><span class="mod-badge badge-active">reports</span><div class="mod-icon" style="background:rgba(6,182,212,.08)"><svg style="stroke:var(--cyan)" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="mod-name">Тайлан &amp; Статистик</div><div class="mod-desc">reports хүснэгт — incident_id, period, file_path</div></div>
+      <div class="mod-card" onclick="goTo('rbac')"><span class="mod-badge badge-active">users+roles</span><div class="mod-icon" style="background:var(--orange-bg)"><svg style="stroke:var(--orange)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="mod-name">Хэрэглэгчийн эрх (RBAC)</div><div class="mod-desc">users + roles хүснэгт — username, role_id, status</div></div>
+      <div class="mod-card" onclick="goTo('employees')"><span class="mod-badge badge-active">employees</span><div class="mod-icon" style="background:var(--purple-bg)"><svg style="stroke:var(--purple)" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="mod-name">Ажилтны бүртгэл</div><div class="mod-desc">employees + departments — first_name, position, department_id</div></div>
+      <div class="mod-card" onclick="goTo('audit')"><span class="mod-badge badge-active">audit_logs</span><div class="mod-icon" style="background:rgba(100,116,139,.1)"><svg style="stroke:var(--text2)" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></div><div class="mod-name">Архив &amp; Аудит лог</div><div class="mod-desc">audit_logs хүснэгт — action, entity_name, ip_address</div></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN — Мэдээлэл холбооны сүлжээ ХХК | О.Энх-Од B232270134</span><span>F.CSM314 v3.2.0 — Hash Routing + ERD</span></footer>
+</div>
+ 
+<!-- ЗӨРЧИЛ -->
+<div id="zorchilPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">incidents</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="z1clock"></span><div class="user-badge"><div class="u-dot" id="z1dot"></div><div><div class="u-name" id="z1name"></div><div class="u-role" id="z1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Зөрчлийн бүртгэл</span></div>
+    <div class="page-header"><div><div class="page-title">Зөрчлийн бүртгэл</div><div class="page-sub">ERD: incidents — incident_id INT PK, incident_type VARCHAR, location_id FK, severity ENUM, status ENUM, reported_by FK, created_at TIMESTAMP</div></div><button class="btn-add" onclick="openModal('zorchilModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Зөрчил бүртгэх</button></div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Хайх..." oninput="filterTable('zorchilTable',this.value)"/></div>
+        <button class="filter-chip on" onclick="filterByStatus('zorchilTable','',this)">Бүгд</button>
+        <button class="filter-chip" onclick="filterByStatus('zorchilTable','Нэн яаралтай',this)">Нэн яаралтай</button>
+        <button class="filter-chip" onclick="filterByStatus('zorchilTable','Хүлээгдэж буй',this)">Хүлээгдэж буй</button>
+        <button class="filter-chip" onclick="filterByStatus('zorchilTable','Шийдвэрлэсэн',this)">Шийдвэрлэсэн</button>
+      </div>
+      <table id="zorchilTable"><thead><tr><th>incident_id</th><th>created_at</th><th>incident_type</th><th>location</th><th>severity</th><th>status</th><th>reported_by</th><th>assigned_to</th><th>Үйлдэл</th></tr></thead><tbody id="zorchilBody"></tbody></table>
+      <div class="table-foot"><span id="zorchilCount">Нийт 0 бүртгэл</span><span>incidents хүснэгт</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>incidents v3.2.0</span></footer>
+</div>
+ 
+<!-- НЭВТРЭХ/ГАРАХ -->
+<div id="nevtrehPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">access_logs</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="n1clock"></span><div class="user-badge"><div class="u-dot" id="n1dot"></div><div><div class="u-name" id="n1name"></div><div class="u-role" id="n1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Нэвтрэх / Гарах</span></div>
+    <div class="page-header"><div><div class="page-title">Нэвтрэх / Гарах бүртгэл</div><div class="page-sub">ERD: access_logs — access_log_id INT PK, visitor_id FK, employee_id FK, location_id FK, access_type ENUM, access_time DATETIME, person_type ENUM</div></div><button class="btn-add" onclick="openModal('nevtrehModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Бүртгэл нэмэх</button></div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Хайх..." oninput="filterTable('nevtrehTable',this.value)"/></div>
+        <button class="filter-chip on" onclick="filterByStatus('nevtrehTable','',this)">Бүгд</button>
+        <button class="filter-chip" onclick="filterByStatus('nevtrehTable','Нэвтэрсэн',this)">Нэвтэрсэн</button>
+        <button class="filter-chip" onclick="filterByStatus('nevtrehTable','Гарсан',this)">Гарсан</button>
+      </div>
+      <table id="nevtrehTable"><thead><tr><th>access_log_id</th><th>access_time</th><th>Нэр</th><th>person_type</th><th>location</th><th>access_type</th><th>approved_by</th><th>Тэмдэглэл</th><th>Үйлдэл</th></tr></thead><tbody id="nevtrehBody"></tbody></table>
+      <div class="table-foot"><span id="nevtrehCount">Нийт 0 бүртгэл</span><span>access_logs хүснэгт</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>access_logs v3.2.0</span></footer>
+</div>
+ 
+<!-- ЗОЧИН -->
+<div id="zochinPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">visitors</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="z2clock"></span><div class="user-badge"><div class="u-dot" id="z2dot"></div><div><div class="u-name" id="z2name"></div><div class="u-role" id="z2role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Зочны бүртгэл</span></div>
+    <div class="page-header"><div><div class="page-title">Зочны бүртгэл</div><div class="page-sub">ERD: visitors — visitor_id INT PK, first_name VARCHAR, last_name VARCHAR, organisation_name VARCHAR, schedule VARCHAR, created_at TIMESTAMP</div></div><button class="btn-add" onclick="openModal('zochinModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Зочин бүртгэх</button></div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Зочны нэр..." oninput="filterTable('zochinTable',this.value)"/></div>
+        <button class="filter-chip on" onclick="filterByStatus('zochinTable','',this)">Бүгд</button>
+        <button class="filter-chip" onclick="filterByStatus('zochinTable','Байгаа',this)">Байгаа</button>
+        <button class="filter-chip" onclick="filterByStatus('zochinTable','Гарсан',this)">Гарсан</button>
+      </div>
+      <table id="zochinTable"><thead><tr><th>visitor_id</th><th>created_at</th><th>first_name</th><th>last_name</th><th>organisation_name</th><th>Зорилго</th><th>schedule</th><th>Хариуцагч</th><th>Төлөв</th><th>Үйлдэл</th></tr></thead><tbody id="zochinBody"></tbody></table>
+      <div class="table-foot"><span id="zochinCount">Нийт 0 бүртгэл</span><span>visitors хүснэгт</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>visitors v3.2.0</span></footer>
+</div>
+ 
+<!-- ЭРГҮҮЛ -->
+<div id="erguulPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">inspections</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="e1clock"></span><div class="user-badge"><div class="u-dot" id="e1dot"></div><div><div class="u-name" id="e1name"></div><div class="u-role" id="e1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Эргүүлийн бүртгэл</span></div>
+    <div class="page-header"><div><div class="page-title">Үзлэг / Эргүүлийн бүртгэл</div><div class="page-sub">ERD: inspections — inspection_id INT PK, location_id FK, inspected_by FK, approved_by FK, inspection_type ENUM, inspection_date DATETIME</div></div><button class="btn-add" onclick="openModal('erguulModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Эргүүл бүртгэх</button></div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Хайх..." oninput="filterTable('erguulTable',this.value)"/></div>
+        <button class="filter-chip on" onclick="filterByStatus('erguulTable','',this)">Бүгд</button>
+        <button class="filter-chip" onclick="filterByStatus('erguulTable','Хийгдсэн',this)">Хийгдсэн</button>
+        <button class="filter-chip" onclick="filterByStatus('erguulTable','Хоцорсон',this)">Хоцорсон</button>
+      </div>
+      <table id="erguulTable"><thead><tr><th>inspection_id</th><th>inspection_date</th><th>inspected_by</th><th>location</th><th>inspection_type</th><th>Үргэлжилсэн</th><th>summary</th><th>status</th><th>Үйлдэл</th></tr></thead><tbody id="erguulBody"></tbody></table>
+      <div class="table-foot"><span id="erguulCount">Нийт 0 бүртгэл</span><span>inspections хүснэгт</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>inspections v3.2.0</span></footer>
+</div>
+ 
+<!-- МЭДЭГДЭЛ -->
+<div id="medegdelPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">notifications</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="m1clock"></span><div class="user-badge"><div class="u-dot" id="m1dot"></div><div><div class="u-name" id="m1name"></div><div class="u-role" id="m1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Мэдэгдэл</span></div>
+    <div class="page-header"><div><div class="page-title">Мэдэгдлийн систем</div><div class="page-sub">ERD: notifications — notification_id INT PK, user_id FK, incident_id FK, title VARCHAR, message TEXT, status ENUM, sent_at TIMESTAMP</div></div><button class="btn-add" onclick="openModal('medegdelModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Мэдэгдэл илгээх</button></div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>notifications v3.2.0</span></footer>
+</div>
+ 
+<!-- ТАЙЛАН -->
+<div id="tailanPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">reports</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="t1clock"></span><div class="user-badge"><div class="u-dot" id="t1dot"></div><div><div class="u-name" id="t1name"></div><div class="u-role" id="t1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Тайлан</span></div>
+    <div class="page-header"><div><div class="page-title">Тайлан &amp; Статистик</div><div class="page-sub">ERD: reports — report_id, created_by INT, period_start DATE, period_end DATE, file_path VARCHAR</div></div><button class="btn-add" onclick="exportReport()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Тайлан татах</button></div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <div class="table-toolbar"><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">ERD-ийн бүх хүснэгтийн нэгтгэл</span></div>
+      <table><thead><tr><th>Хүснэгт (ERD)</th><th>Нийт бүртгэл</th><th>Шийдвэрлэсэн</th><th>Хүлээгдэж буй</th><th>Гүйцэтгэл %</th></tr></thead><tbody id="reportBody"></tbody></table>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar"><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">Хэлтэсийн дүн шинжилгээ</span></div>
+      <table><thead><tr><th>department_name</th><th>Ажилтны тоо</th><th>Зөрчил</th><th>Эргүүл</th></tr></thead><tbody id="deptReportBody"></tbody></table>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>reports v3.2.0</span></footer>
+</div>
+ 
+<!-- RBAC -->
+<div id="rbacPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">users + roles</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="r1clock"></span><div class="user-badge"><div class="u-dot" id="r1dot"></div><div><div class="u-name" id="r1name"></div><div class="u-role" id="r1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>RBAC</span></div>
+    <div class="page-header"><div><div class="page-title">Хэрэглэгчийн эрх (RBAC)</div><div class="page-sub">ERD: users — user_id PK, employee_id FK, username, password_hash, role_id FK, status ENUM | roles — role_id PK, role_name VARCHAR</div></div><button class="btn-add" onclick="openModal('userModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Хэрэглэгч нэмэх</button></div>
+    <div style="margin-bottom:20px" class="table-wrap">
+      <div class="table-toolbar"><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">roles хүснэгт — role_id, role_name, description</span></div>
+      <table><thead><tr><th>role_id</th><th>role_name</th><th>description</th><th>Хэрэглэгч тоо</th></tr></thead><tbody id="rolesBody"></tbody></table>
+    </div>
+    <div class="rbac-grid" id="rbacGrid"></div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>users + roles v3.2.0</span></footer>
+</div>
+ 
+<!-- АЖИЛТАН -->
+<div id="empPage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">employees</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="em1clock"></span><div class="user-badge"><div class="u-dot" id="em1dot"></div><div><div class="u-name" id="em1name"></div><div class="u-role" id="em1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Ажилтан</span></div>
+    <div class="page-header"><div><div class="page-title">Ажилтны бүртгэл</div><div class="page-sub">ERD: employees — employee_id PK, department_id FK, first_name, last_name, position, phone, email, hire_date</div></div><button class="btn-add" onclick="openModal('empModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ажилтан нэмэх</button></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchEmpTab('empList',this)">employees хүснэгт</button>
+      <button class="nav-tab" onclick="switchEmpTab('deptList',this)">departments хүснэгт</button>
+      <button class="nav-tab" onclick="switchEmpTab('locList',this)">locations хүснэгт</button>
+    </div>
+    <div id="empList">
+      <div class="table-wrap">
+        <div class="table-toolbar"><div class="search-wrap"><span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Хайх..." oninput="filterTable('empTable',this.value)"/></div></div>
+        <table id="empTable"><thead><tr><th>employee_id</th><th>first_name</th><th>last_name</th><th>position</th><th>department</th><th>phone</th><th>email</th><th>hire_date</th><th>Үйлдэл</th></tr></thead><tbody id="empBody"></tbody></table>
+        <div class="table-foot"><span id="empCount">0 бүртгэл</span><span>employees хүснэгт</span></div>
+      </div>
+    </div>
+    <div id="deptList" style="display:none"><div class="dept-cards" id="deptCards"></div></div>
+    <div id="locList" style="display:none">
+      <div class="table-wrap">
+        <table><thead><tr><th>location_id</th><th>location_name</th><th>location_type</th><th>address</th><th>description</th></tr></thead><tbody id="locBody"></tbody></table>
+        <div class="table-foot"><span id="locCount">0 байршил</span><span>locations хүснэгт</span></div>
+      </div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>employees v3.2.0</span></footer>
+</div>
+ 
+<!-- АРХИВ -->
+<div id="archivePage" class="page">
+  <nav class="topbar">
+    <div class="topbar-left"><button class="back-btn" onclick="goTo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Буцах</button><a class="topbar-logo" onclick="goTo('dashboard')"><div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="topbar-title">ICN SECURITY</span></a><div class="topbar-div"></div><span class="topbar-sys">audit_logs</span></div>
+    <div class="topbar-right"><span class="topbar-clock" id="a1clock"></span><div class="user-badge"><div class="u-dot" id="a1dot"></div><div><div class="u-name" id="a1name"></div><div class="u-role" id="a1role"></div></div></div><button class="logout-btn" onclick="doLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Гарах</button></div>
+  </nav>
+  <div class="content">
+    <div class="breadcrumb"><span class="bc-link" onclick="goTo('dashboard')">Дашбоард</span><span>/</span><span>Архив &amp; Аудит лог</span></div>
+    <div class="page-header"><div><div class="page-title">Архив &amp; Аудит лог</div><div class="page-sub">ERD: audit_logs — audit_log_id PK, user_id FK, action_type VARCHAR, entity_name VARCHAR, entity_id INT, ip_address VARCHAR, created_at TIMESTAMP</div></div><button class="btn-add" style="background:var(--red)" onclick="if(confirm('Бүх мэдээллийн санг дахин тохируулах уу?'))resetDB()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>DB Reset</button></div>
+    <div class="archive-stats">
+      <div class="arch-stat"><div class="arch-stat-val" id="archTotal">0</div><div class="arch-stat-label">Нийт audit_log бүртгэл</div></div>
+      <div class="arch-stat"><div class="arch-stat-val" id="archToday">0</div><div class="arch-stat-label">Өнөөдрийн үйлдэл</div></div>
+      <div class="arch-stat"><div class="arch-stat-val" id="archUsers">0</div><div class="arch-stat-label">users хүснэгтийн тоо</div></div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar"><span style="font-family:var(--mono);font-size:11px;color:var(--text2)">audit_logs — 2 жил хадгалагдана | <span id="storageMode" style="color:var(--green)">localStorage: идэвхтэй</span></span></div>
+      <table><thead><tr><th>created_at</th><th>user</th><th>action_type</th><th>entity_name</th><th>entity_id</th><th>ip_address</th></tr></thead><tbody id="auditBody"></tbody></table>
+      <div class="table-foot"><span id="auditCount">0 лог</span><span>audit_logs хүснэгт</span></div>
+    </div>
+  </div>
+  <footer class="page-footer"><span>ICN</span><span>audit_logs v3.2.0</span></footer>
+</div>
+ 
+<!-- MODALS -->
+<div class="overlay hidden" id="zorchilModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Зөрчил бүртгэх — incidents</div><button class="modal-close" onclick="closeModal('zorchilModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">incident_date</label><input type="date" class="form-input" id="z_date"/></div><div class="form-group"><label class="form-label">Цаг</label><input type="time" class="form-input" id="z_time"/></div></div>
+      <div class="form-group"><label class="form-label">incident_type (VARCHAR)</label><select class="form-select" id="z_type"><option>Хаалга нээлттэй үлдсэн</option><option>Камер ажиллахгүй</option><option>Зөвшөөрөлгүй нэвтрэлт</option><option>Дохиолол худал дуугарсан</option><option>Гал унтраагч дуусгавар</option><option>Хашааны гэмтэл</option><option>Бусад</option></select></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">location_id FK → locations</label><select class="form-select" id="z_loc_id"></select></div><div class="form-group"><label class="form-label">severity ENUM</label><select class="form-select" id="z_sev"><option>Нэн яаралтай</option><option>Дунд</option><option>Бага</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">assigned_to FK → employees</label><select class="form-select" id="z_assigned"></select></div><div class="form-group"><label class="form-label">due_date DATETIME</label><input type="date" class="form-input" id="z_due"/></div></div>
+      <div class="form-group"><label class="form-label">description TEXT</label><textarea class="form-textarea" id="z_desc" placeholder="Зөрчлийн дэлгэрэнгүй тайлбар..."></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('zorchilModal')">Болих</button><button class="btn-save" onclick="saveZorchil()">Хадгалах</button></div>
+  </div>
+</div>
+ 
+<div class="overlay hidden" id="nevtrehModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Нэвтрэх / Гарах — access_logs</div><button class="modal-close" onclick="closeModal('nevtrehModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">person_type ENUM</label><select class="form-select" id="nv_ptype"><option>Ажилтан</option><option>Зочин</option><option>Тээврийн хэрэгсэл</option></select></div><div class="form-group"><label class="form-label">access_type ENUM</label><select class="form-select" id="nv_action"><option>Нэвтэрсэн</option><option>Гарсан</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Нэр</label><input type="text" class="form-input" id="nv_name" placeholder="Бүтэн нэр"/></div><div class="form-group"><label class="form-label">location_id FK</label><select class="form-select" id="nv_loc_id"></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">approved_by FK</label><select class="form-select" id="nv_approved"></select></div><div class="form-group"><label class="form-label">Албан тушаал</label><input type="text" class="form-input" id="nv_pos" placeholder="Ажилчин"/></div></div>
+      <div class="form-group"><label class="form-label">note TEXT</label><textarea class="form-textarea" id="nv_note" placeholder="Нэмэлт тэмдэглэл..."></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('nevtrehModal')">Болих</button><button class="btn-save" onclick="saveNevtreh()">Хадгалах</button></div>
+  </div>
+</div>
+ 
+<div class="overlay hidden" id="zochinModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Зочин бүртгэх — visitors</div><button class="modal-close" onclick="closeModal('zochinModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">first_name</label><input type="text" class="form-input" id="zc_fname" placeholder="Нэр"/></div><div class="form-group"><label class="form-label">last_name</label><input type="text" class="form-input" id="zc_lname" placeholder="Овог"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">organisation_name</label><input type="text" class="form-input" id="zc_org" placeholder="Байгууллагын нэр"/></div><div class="form-group"><label class="form-label">register_no</label><input type="text" class="form-input" id="zc_reg" placeholder="Регистрийн дугаар"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Зорилго</label><input type="text" class="form-input" id="zc_purp" placeholder="Уулзалт, засвар..."/></div><div class="form-group"><label class="form-label">Хариуцагч</label><select class="form-select" id="zc_resp"></select></div></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('zochinModal')">Болих</button><button class="btn-save" onclick="saveZochin()">Бүртгэх</button></div>
+  </div>
+</div>
+ 
+<div class="overlay hidden" id="erguulModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Эргүүл бүртгэх — inspections</div><button class="modal-close" onclick="closeModal('erguulModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">inspected_by FK</label><select class="form-select" id="eg_emp"></select></div><div class="form-group"><label class="form-label">approved_by FK</label><select class="form-select" id="eg_approved"></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">location_id FK</label><select class="form-select" id="eg_loc_id"></select></div><div class="form-group"><label class="form-label">inspection_type ENUM</label><select class="form-select" id="eg_type"><option>Эргүүл шалгалт</option><option>Объектын үзлэг</option><option>Постын хяналт</option><option>Техникийн хяналт</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Эхэлсэн цаг</label><input type="time" class="form-input" id="eg_start"/></div><div class="form-group"><label class="form-label">Үргэлжилсэн (мин)</label><input type="number" class="form-input" id="eg_dur" placeholder="45"/></div></div>
+      <div class="form-group"><label class="form-label">summary VARCHAR(255)</label><textarea class="form-textarea" id="eg_note" placeholder="Эргүүлийн явцад ажигласан зүйл..."></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('erguulModal')">Болих</button><button class="btn-save" onclick="saveErguul()">Хадгалах</button></div>
+  </div>
+</div>
+ 
+<div class="overlay hidden" id="medegdelModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Мэдэгдэл илгээх — notifications</div><button class="modal-close" onclick="closeModal('medegdelModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">title VARCHAR(255)</label><input type="text" class="form-input" id="md_title" placeholder="Мэдэгдлийн гарчиг"/></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Төрөл</label><select class="form-select" id="md_type"><option>Яаралтай</option><option>Анхааруулга</option><option>Мэдээлэл</option></select></div><div class="form-group"><label class="form-label">user_id FK → users</label><select class="form-select" id="md_to"></select></div></div>
+      <div class="form-group"><label class="form-label">message TEXT</label><textarea class="form-textarea" id="md_msg" placeholder="Мэдэгдлийн агуулга..." style="min-height:100px"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('medegdelModal')">Болих</button><button class="btn-save" onclick="saveMedegdel()">Илгээх</button></div>
+  </div>
+</div>
+ 
+<!-- ══ ХЭРЭГЛЭГЧ НЭМЭХ MODAL — password + expire_date нэмэгдсэн ══ -->
+<div class="overlay hidden" id="userModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Хэрэглэгч нэмэх — users</div><button class="modal-close" onclick="closeModal('userModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Нэр (name)</label><input type="text" class="form-input" id="usr_fname" placeholder="Жишээ: О.Батаа"/></div>
+        <div class="form-group"><label class="form-label">username</label><input type="text" class="form-input" id="usr_uname" placeholder="bataa2025"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">password — нууц үг</label>
+          <div class="pass-wrap">
+            <input type="text" class="form-input" id="usr_pass" placeholder="Password@123" autocomplete="new-password"/>
+            <button type="button" class="pass-eye" onclick="genPassword()" title="Нууц үг үүсгэх">
+              <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </button>
+          </div>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px">★ дарж автомат үүсгэх</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">expire_date — дуусах огноо</label>
+          <input type="date" class="form-input" id="usr_expire"/>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:3px">Анхдагч: 1 жилийн дараа</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">role_id FK → roles</label><select class="form-select" id="usr_role"></select></div>
+        <div class="form-group"><label class="form-label">department_id FK</label><select class="form-select" id="usr_dept_id"></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">status ENUM</label><select class="form-select" id="usr_status"><option>Идэвхтэй</option><option>Идэвхгүй</option></select></div>
+      <!-- Preview -->
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--text2)">
+        ℹ Бүртгэсний дараа нэвтрэх хэсэгт <strong style="color:var(--accent)">шууд харагдана</strong> — тухайн нэвтрэх нэр болон нууц үгээр нэвтрэх боломжтой.
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('userModal')">Болих</button><button class="btn-save" onclick="saveUser()">Бүртгэх</button></div>
+  </div>
+</div>
+ 
+<div class="overlay hidden" id="empModal">
+  <div class="modal"><div class="modal-top-bar"></div>
+    <div class="modal-head"><div class="modal-title">Ажилтан нэмэх — employees</div><button class="modal-close" onclick="closeModal('empModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">first_name</label><input type="text" class="form-input" id="emp_fname" placeholder="Нэр"/></div><div class="form-group"><label class="form-label">last_name</label><input type="text" class="form-input" id="emp_lname" placeholder="Овог"/></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">position</label><input type="text" class="form-input" id="emp_pos" placeholder="Ажлын байр"/></div><div class="form-group"><label class="form-label">department_id FK</label><select class="form-select" id="emp_dept"></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">phone</label><input type="text" class="form-input" id="emp_phone" placeholder="+976 9900 0000"/></div><div class="form-group"><label class="form-label">email</label><input type="text" class="form-input" id="emp_email" placeholder="email@icn.mn"/></div></div>
+      <div class="form-group"><label class="form-label">hire_date DATE</label><input type="date" class="form-input" id="emp_hire"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('empModal')">Болих</button><button class="btn-save" onclick="saveEmployee()">Бүртгэх</button></div>
+  </div>
+</div>
+ 
+<script>
+// ══════════════════════════════════════════════
+// ICN SECURITY v3.2.0
+// HASH-BASED ROUTING
+// + Хэрэглэгч нэмэхэд: password + expire_date хадгалагдана
+// + Login хуудсанд шинэ хэрэглэгчид автоматаар нэмэгдэнэ
+// ══════════════════════════════════════════════
+ 
+const ROUTES = {
+  'login':         { pageId: 'loginPage',    render: null },
+  'dashboard':     { pageId: 'dashPage',     render: ()=>updateDashKPIs() },
+  'incidents':     { pageId: 'zorchilPage',  render: ()=>renderZorchil() },
+  'access':        { pageId: 'nevtrehPage',  render: ()=>renderNevtreh() },
+  'visitors':      { pageId: 'zochinPage',   render: ()=>renderZochin() },
+  'inspections':   { pageId: 'erguulPage',   render: ()=>renderErguul() },
+  'notifications': { pageId: 'medegdelPage', render: ()=>renderMedegdel() },
+  'reports':       { pageId: 'tailanPage',   render: ()=>renderTailan() },
+  'rbac':          { pageId: 'rbacPage',     render: ()=>renderRBAC() },
+  'employees':     { pageId: 'empPage',      render: ()=>renderEmployees() },
+  'audit':         { pageId: 'archivePage',  render: ()=>renderArchive() },
+};
+ 
+const PAGE_BADGES = {
+  'dashboard':     ['dashDot','dashName','dashRole'],
+  'incidents':     ['z1dot','z1name','z1role'],
+  'access':        ['n1dot','n1name','n1role'],
+  'visitors':      ['z2dot','z2name','z2role'],
+  'inspections':   ['e1dot','e1name','e1role'],
+  'notifications': ['m1dot','m1name','m1role'],
+  'reports':       ['t1dot','t1name','t1role'],
+  'rbac':          ['r1dot','r1name','r1role'],
+  'employees':     ['em1dot','em1name','em1role'],
+  'audit':         ['a1dot','a1name','a1role'],
+};
+ 
+let currentUser = null;
+let attempts = 0, locked = false, lockInterval = null, lockTimer = 0;
+let _navigatingFromCode = false;
+ 
+const store = {
+  _mem: {},
+  _ls: (()=>{ try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return true; } catch(e){ return false; }})(),
+  get(k){ if(this._ls){ try{ return localStorage.getItem(k); }catch(e){} } return this._mem[k]||null; },
+  set(k,v){ if(this._ls){ try{ localStorage.setItem(k,v); return; }catch(e){} } this._mem[k]=v; },
+  remove(k){ if(this._ls){ try{ localStorage.removeItem(k); }catch(e){} } delete this._mem[k]; },
+  available(){ return this._ls; }
+};
+ 
+const DB_KEYS = {
+  incidents:'icn:incidents', access:'icn:access_logs', visitors:'icn:visitors',
+  inspections:'icn:inspections', notifications:'icn:notifications', audit:'icn:audit_logs',
+  users:'icn:users', roles:'icn:roles', employees:'icn:employees',
+  departments:'icn:departments', locations:'icn:locations', reports:'icn:reports',
+};
+ 
+const ROLES = [
+  {role_id:1,role_name:'Системийн Админ',description:'Бүрэн эрх — бүх модульд хандалт'},
+  {role_id:2,role_name:'Аюулгүй байдлын Менежер',description:'Шийдвэрлэлт хянах, тайлан гаргах'},
+  {role_id:3,role_name:'Хамгаалалтын Ажилтан',description:'Бүртгэл үүсгэх, өөрийн мэдээлэл харах'},
+  {role_id:4,role_name:'Ээлжийн Ахлах',description:'Бүртгэл шалгах, батлах, буцаах'},
+  {role_id:5,role_name:'Удирдлага',description:'Тайлан, статистик харах — зөвхөн хянах'},
+];
+ 
+const SYSTEM_USERS = [
+  {user_id:1,username:'admin',  password:'Admin@123', name:'franz',         dept:'Системийн Админ',         color:'#f59e0b',role_id:1,employee_id:1,status:'Идэвхтэй'},
+  {user_id:2,username:'manager',password:'Manager@1', name:'О.Жанцанноров',dept:'Аюулгүй байдлын Менежер',color:'#3b82f6',role_id:2,employee_id:2,status:'Идэвхтэй'},
+  {user_id:3,username:'guard',  password:'Guard@123', name:'О.Гэрэлт-Од',  dept:'Хамгаалалтын Ажилтан',  color:'#10b981',role_id:3,employee_id:3,status:'Идэвхтэй'},
+  {user_id:4,username:'leader', password:'Leader@12', name:'О.Энх-Од',     dept:'Ээлжийн Ахлах',         color:'#8b5cf6',role_id:4,employee_id:4,status:'Идэвхтэй'},
+];
+ 
+// ══ LOGINABLE_USERS: system + шинээр бүртгэгдсэн хэрэглэгчид ══
+let LOGINABLE_USERS = [...SYSTEM_USERS];
+ 
+let DB = {
+  incidents:[],access:[],visitors:[],inspections:[],notifications:[],
+  audit:[],users:[...SYSTEM_USERS],
+  roles:[...ROLES],employees:[],departments:[],locations:[],reports:[]
+};
+ 
+function dbLoad(){
+  for(const [key,storKey] of Object.entries(DB_KEYS)){
+    try{ const v=store.get(storKey); if(v) DB[key]=JSON.parse(v); }catch(e){}
+  }
+  if(DB.departments.length===0) seedData();
+  updateLoginCount();
+  const banner=document.getElementById('dbStatusBanner');
+  const txt=document.getElementById('dbStatusTxt');
+  if(store.available()){
+    if(txt) txt.textContent='localStorage холбогдсон — өгөгдөл хадгалагдана';
+    if(banner) banner.classList.remove('warn');
+    const sm=document.getElementById('storageMode');
+    if(sm) sm.textContent='localStorage: идэвхтэй ✓';
+  } else {
+    if(txt) txt.textContent='In-memory горим — хуудас дахин ачааллахад өгөгдөл алдагдана';
+    if(banner) banner.classList.add('warn');
+    const sm=document.getElementById('storageMode');
+    if(sm){sm.textContent='In-memory горим (localStorage хязгаарлагдсан)';sm.style.color='var(--orange)';}
+  }
+  const dm=document.getElementById('dbModeTxt');
+  if(dm) dm.textContent=store.available()?'ERD + localStorage':'ERD + Memory';
+}
+ 
+function dbSave(table){
+  try{ store.set(DB_KEYS[table], JSON.stringify(DB[table])); }catch(e){}
+}
+ 
+function updateLoginCount(){
+  const total=DB.incidents.length+DB.access.length+DB.visitors.length+DB.inspections.length+DB.employees.length;
+  const el=document.getElementById('dbRecordCount');
+  if(el) el.textContent=total;
+}
+ 
+function seedData(){
+  DB.departments=[
+    {department_id:1,department_name:'Аюулгүй байдлын алба',description:'Объектын хамгаалалт, бүртгэл, хяналт'},
+    {department_id:2,department_name:'Мэдээллийн технологи',description:'Программ, сервер, мэдээллийн сангийн хэвийн ажиллагаа'},
+    {department_id:3,department_name:'Техникийн алба',description:'Сүлжээний тоног төхөөрөмж, засвар'},
+    {department_id:4,department_name:'Хэрэглэгчийн үйлчилгээ',description:'Гэрээ, тооцоо, санал гомдол'},
+    {department_id:5,department_name:'Хүний нөөц',description:'Ажилтны сонгон шалгаруулалт, сургалт'},
+    {department_id:6,department_name:'Удирдлага',description:'Стратеги төлөвлөлт, удирдлага'},
+  ];
+  DB.locations=[
+    {location_id:1,location_name:'Үндсэн орц',location_type:'Орц/Гарц',address:'1-р байр, гол хаалга',description:'Үндсэн нэвтрэх хаалга'},
+    {location_id:2,location_name:'Хойд орц',location_type:'Орц/Гарц',address:'Хойд хэсэг',description:'Хойд талын нэвтрэх хаалга'},
+    {location_id:3,location_name:'Баруун орц',location_type:'Орц/Гарц',address:'Баруун хэсэг',description:'Баруун талын нэвтрэх хаалга'},
+    {location_id:4,location_name:'А корпус — 1 дав',location_type:'Барилга',address:'А корпус, 1-р давхар',description:'Ажлын өрөөнүүд'},
+    {location_id:5,location_name:'А корпус — 2 дав',location_type:'Барилга',address:'А корпус, 2-р давхар',description:'Удирдлагын өрөөнүүд'},
+    {location_id:6,location_name:'Серверийн өрөө',location_type:'Тусгай зон',address:'Б корпус, -1 давхар',description:'Серверийн өрөө — хязгаарлагдмал хандалт'},
+    {location_id:7,location_name:'Б корпус',location_type:'Барилга',address:'Б корпус, бүх давхар',description:'Техникийн ажилтнуудын байр'},
+    {location_id:8,location_name:'Гадна хашаа',location_type:'Гадна талбай',address:'Хашааны периметр',description:'Гадна хамгаалалтын зона'},
+    {location_id:9,location_name:'Тоног төхөөрөмжийн өрөө',location_type:'Тусгай зон',address:'В корпус, 1-р давхар',description:'Сүлжээний тоног төхөөрөмж'},
+    {location_id:10,location_name:'Машины зогсоол',location_type:'Гадна талбай',address:'Баруун хойд булан',description:'Ажилчид, зочдын машины зогсоол'},
+  ];
+  DB.employees=[
+    {employee_id:1,department_id:2,first_name:'franz',last_name:'',position:'Системийн Админ',phone:'9900-0001',email:'admin@icn.mn',hire_date:'2020-01-15'},
+    {employee_id:2,department_id:1,first_name:'О.',last_name:'Жанцанноров',position:'АБ Менежер',phone:'9900-0002',email:'manager@icn.mn',hire_date:'2019-03-01'},
+    {employee_id:3,department_id:1,first_name:'О.',last_name:'Гэрэлт-Од',position:'Хамгаалалтын Ажилтан',phone:'9900-0003',email:'guard@icn.mn',hire_date:'2021-06-01'},
+    {employee_id:4,department_id:1,first_name:'О.',last_name:'Энх-Од',position:'Ээлжийн Ахлах',phone:'9900-0004',email:'leader@icn.mn',hire_date:'2020-09-15'},
+    {employee_id:5,department_id:1,first_name:'Б.',last_name:'Мөнхбат',position:'Хамгаалалтын Ажилтан',phone:'9900-0005',email:'munkh@icn.mn',hire_date:'2022-01-10'},
+    {employee_id:6,department_id:1,first_name:'Д.',last_name:'Эрдэнэ',position:'Хамгаалалтын Ажилтан',phone:'9900-0006',email:'erdene@icn.mn',hire_date:'2022-04-20'},
+    {employee_id:7,department_id:2,first_name:'Г.',last_name:'Батсайхан',position:'IT Инженер',phone:'9900-0007',email:'it@icn.mn',hire_date:'2021-02-01'},
+    {employee_id:8,department_id:3,first_name:'Э.',last_name:'Мөнхтуяа',position:'Холбооны Инженер',phone:'9900-0008',email:'eng@icn.mn',hire_date:'2018-11-15'},
+  ];
+  DB.incidents=[
+    {id:'INC-041',date:'2025-06-18 08:32',type:'Хаалга нээлттэй үлдсэн',location_id:5,location:'А корпус — 2 дав',severity:'Нэн яаралтай',status:'Хүлээгдэж буй',reported_by:'О.Гэрэлт-Од',assigned_to:'О.Жанцанноров',due_date:'2025-06-19',desc:'А корпусын 2 давхарт хаалга нээлттэй байгааг илрүүлэв.'},
+    {id:'INC-040',date:'2025-06-17 22:14',type:'Камер ажиллахгүй',location_id:1,location:'Үндсэн орц',severity:'Дунд',status:'Шийдвэрлэж байна',reported_by:'О.Энх-Од',assigned_to:'Г.Батсайхан',due_date:'2025-06-20',desc:'Үндсэн орцны камер доголдов.'},
+    {id:'INC-039',date:'2025-06-17 14:05',type:'Зөвшөөрөлгүй нэвтрэлт',location_id:6,location:'Серверийн өрөө',severity:'Нэн яаралтай',status:'Шийдвэрлэсэн',reported_by:'О.Гэрэлт-Од',assigned_to:'О.Жанцанноров',due_date:'2025-06-17',desc:'Серверийн өрөөнд зөвшөөрөлгүй нэвтрэлт илэрлээ.'},
+    {id:'INC-038',date:'2025-06-16 10:20',type:'Хашааны гэмтэл',location_id:8,location:'Гадна хашаа',severity:'Бага',status:'Шийдвэрлэсэн',reported_by:'franz',assigned_to:'Э.Мөнхтуяа',due_date:'2025-06-18',desc:'Баруун хашааны хэсэг гэмтжээ.'},
+    {id:'INC-037',date:'2025-06-15 16:48',type:'Дохиолол худал дуугарсан',location_id:7,location:'Б корпус',severity:'Дунд',status:'Шийдвэрлэсэн',reported_by:'О.Жанцанноров',assigned_to:'Б.Мөнхбат',due_date:'2025-06-16',desc:'Б корпусын дохиолол худал дуугарлаа.'},
+    {id:'INC-036',date:'2025-06-14 09:00',type:'Гал унтраагч дуусгавар',location_id:5,location:'А корпус — 2 дав',severity:'Дунд',status:'Хүлээгдэж буй',reported_by:'О.Энх-Од',assigned_to:'О.Жанцанноров',due_date:'2025-06-25',desc:'3 давхарын гал унтраагчийн хугацаа дууслаа.'},
+  ];
+  DB.access=[
+    {id:'ALG-201',date:'2025-06-18 08:45',name:'О.Гэрэлт-Од',position:'Хамгаалалтын Ажилтан',location_id:1,location:'Үндсэн орц',action:'Нэвтэрсэн',person_type:'Ажилтан',approved_by:'О.Энх-Од',note:'—'},
+    {id:'ALG-200',date:'2025-06-18 08:30',name:'О.Жанцанноров',position:'АБ Менежер',location_id:1,location:'Үндсэн орц',action:'Нэвтэрсэн',person_type:'Ажилтан',approved_by:'О.Энх-Од',note:'—'},
+    {id:'ALG-199',date:'2025-06-18 08:12',name:'О.Энх-Од',position:'Ээлжийн Ахлах',location_id:2,location:'Хойд орц',action:'Нэвтэрсэн',person_type:'Ажилтан',approved_by:'—',note:'—'},
+    {id:'ALG-198',date:'2025-06-17 18:05',name:'Б.Мөнхбат',position:'Хамгаалалтын Ажилтан',location_id:1,location:'Үндсэн орц',action:'Гарсан',person_type:'Ажилтан',approved_by:'О.Энх-Од',note:'Ээлж дуусгасан'},
+    {id:'ALG-197',date:'2025-06-17 17:55',name:'Д.Эрдэнэ',position:'Хамгаалалтын Ажилтан',location_id:1,location:'Үндсэн орц',action:'Гарсан',person_type:'Ажилтан',approved_by:'О.Энх-Од',note:'—'},
+    {id:'ALG-196',date:'2025-06-17 09:00',name:'franz',position:'Системийн Админ',location_id:1,location:'Үндсэн орц',action:'Нэвтэрсэн',person_type:'Ажилтан',approved_by:'—',note:'Системийн шалгалт'},
+    {id:'ALG-195',date:'2025-06-18 10:15',name:'Г.Батцэцэг',position:'Зочин',location_id:1,location:'Үндсэн орц',action:'Нэвтэрсэн',person_type:'Зочин',approved_by:'О.Жанцанноров',note:'Монгол Телеком — уулзалт'},
+  ];
+  DB.visitors=[
+    {id:'VIS-088',date:'2025-06-18 10:15',fname:'Г.',lname:'Батцэцэг',org:'Монгол Телеком',reg:'ТА12345678',purpose:'Уулзалт',responsible:'О.Жанцанноров',schedule:'Урьдчилсан бүртгэлтэй',status:'Байгаа'},
+    {id:'VIS-087',date:'2025-06-18 09:30',fname:'Т.',lname:'Болд',org:'Шилэн Кабел',reg:'ОД87654321',purpose:'Засвар үйлчилгээ',responsible:'franz',schedule:'Урьдчилсан бүртгэлгүй',status:'Байгаа'},
+    {id:'VIS-086',date:'2025-06-17 14:00',fname:'Н.',lname:'Сарантуяа',org:'Хувь хүн',reg:'ТА11223344',purpose:'Баримт бичиг авах',responsible:'О.Гэрэлт-Од',schedule:'Урьдчилсан бүртгэлгүй',status:'Гарсан'},
+    {id:'VIS-085',date:'2025-06-17 11:20',fname:'Б.',lname:'Гантулга',org:'Мэдмэкс ХХК',reg:'ОД55667788',purpose:'Аудит шалгалт',responsible:'О.Жанцанноров',schedule:'Урьдчилсан бүртгэлтэй',status:'Гарсан'},
+  ];
+  DB.inspections=[
+    {id:'INS-312',date:'2025-06-18 08:00',employee:'О.Гэрэлт-Од',employee_id:3,location_id:4,location:'А корпус — 1 дав',type:'Эргүүл шалгалт',duration:'45 мин',notes:'Ямар нэг зөрчилгүй',status:'Хийгдсэн',approved_by:'О.Энх-Од'},
+    {id:'INS-311',date:'2025-06-18 06:00',employee:'Б.Мөнхбат',employee_id:5,location_id:1,location:'Үндсэн орц',type:'Постын хяналт',duration:'40 мин',notes:'Хойд хаалга тэй',status:'Хийгдсэн',approved_by:'О.Энх-Од'},
+    {id:'INS-310',date:'2025-06-17 22:00',employee:'О.Энх-Од',employee_id:4,location_id:5,location:'А корпус — 2 дав',type:'Объектын үзлэг',duration:'50 мин',notes:'—',status:'Хийгдсэн',approved_by:'О.Жанцанноров'},
+    {id:'INS-309',date:'2025-06-17 18:00',employee:'О.Гэрэлт-Од',employee_id:3,location_id:8,location:'Гадна хашаа',type:'Эргүүл шалгалт',duration:'38 мин',notes:'—',status:'Хийгдсэн',approved_by:'О.Энх-Од'},
+    {id:'INS-308',date:'2025-06-17 14:00',employee:'Б.Мөнхбат',employee_id:5,location_id:4,location:'А корпус — 1 дав',type:'Эргүүл шалгалт',duration:'—',notes:'—',status:'Хоцорсон',approved_by:'—'},
+    {id:'INS-307',date:'2025-06-17 10:00',employee:'О.Энх-Од',employee_id:4,location_id:6,location:'Серверийн өрөө',type:'Техникийн хяналт',duration:'42 мин',notes:'Ажиллагаа хэвийн',status:'Хийгдсэн',approved_by:'О.Жанцанноров'},
+  ];
+  DB.notifications=[
+    {id:'NOT-001',incident_id:'INC-041',title:'Зөвшөөрөлгүй нэвтрэлт илэрсэн',msg:'Серверийн өрөөнд бүртгэлгүй нэвтрэлт 2025-06-18 08:32 цагт илэрлээ.',time:'Өнөөдөр 08:35',from:'О.Жанцанноров',user_id:2,type:'Яаралтай',read:false},
+    {id:'NOT-002',incident_id:'INC-040',title:'Камер ажиллахгүй байна',msg:'Үндсэн орцны камер өчигдөр 22:14 цагаас хойш ажиллахгүй байна.',time:'Өчигдөр 22:20',from:'Систем автомат',user_id:null,type:'Анхааруулга',read:false},
+    {id:'NOT-003',incident_id:null,title:'Ээлжийн тайлан хүлээн авсан',msg:'2025-06-17 оройн ээлжийн тайланг О.Энх-Од амжилттай илгээлээ.',time:'Өчигдөр 18:10',from:'О.Энх-Од',user_id:4,type:'Мэдээлэл',read:true},
+    {id:'NOT-004',incident_id:'INC-039',title:'Зөрчил INC-039 шийдвэрлэгдлээ',msg:'Серверийн өрөөний зөрчлийг franz шийдвэрлэв.',time:'2025-06-17 15:00',from:'franz',user_id:1,type:'Мэдээлэл',read:true},
+    {id:'NOT-005',incident_id:null,title:'Системийн шинэчлэл v3.2.0',msg:'Хэрэглэгч нэмэх: password + expire_date. Нэвтрэх хэсэгт автомат харагдана.',time:'2025-06-18 09:00',from:'Систем',user_id:null,type:'Мэдээлэл',read:true},
+  ];
+  DB.audit=[
+    {time:'2025-06-18 08:35',user:'О.Жанцанноров',user_id:2,action:'Мэдэгдэл илгээсэн',entity:'notifications',entity_id:'NOT-001',ip:'192.168.1.102'},
+    {time:'2025-06-18 08:32',user:'О.Гэрэлт-Од',user_id:3,action:'Зөрчил бүртгэсэн',entity:'incidents',entity_id:'INC-041',ip:'192.168.1.103'},
+    {time:'2025-06-17 22:14',user:'Систем',user_id:null,action:'Автомат илрүүлэлт',entity:'notifications',entity_id:'NOT-002',ip:'127.0.0.1'},
+    {time:'2025-06-17 18:05',user:'Б.Мөнхбат',user_id:5,action:'Гарах бүртгэл',entity:'access_logs',entity_id:'ALG-198',ip:'192.168.1.105'},
+    {time:'2025-06-17 14:05',user:'О.Гэрэлт-Од',user_id:3,action:'Зөрчил бүртгэсэн',entity:'incidents',entity_id:'INC-039',ip:'192.168.1.103'},
+    {time:'2025-06-17 09:00',user:'franz',user_id:1,action:'Системд нэвтэрсэн',entity:'users',entity_id:1,ip:'192.168.1.101'},
+  ];
+  DB.reports=[
+    {report_id:1,incident_id:'INC-039',created_by:2,period_start:'2025-06-01',period_end:'2025-06-17',file_path:'/reports/june_w3_2025.xlsx',note:'6-р сарын 3-р долоо хоногийн тайлан',created_at:'2025-06-17 16:00'},
+    {report_id:2,incident_id:null,created_by:1,period_start:'2025-05-01',period_end:'2025-05-31',file_path:'/reports/may_2025.pdf',note:'2025 оны 5-р сарын нэгдсэн тайлан',created_at:'2025-06-01 09:00'},
+  ];
+  for(const key of Object.keys(DB_KEYS)) dbSave(key);
+}
+ 
+function addAudit(action,entity,entity_id){
+  DB.audit.unshift({
+    time:new Date().toLocaleString('mn-MN'),
+    user:currentUser?currentUser.name:'Систем',
+    user_id:currentUser?currentUser.user_id:null,
+    action,entity,entity_id,
+    ip:'192.168.1.'+(100+(currentUser?.user_id||0))
+  });
+  if(DB.audit.length>200) DB.audit=DB.audit.slice(0,200);
+  dbSave('audit');
+}
+ 
+function genId(prefix,arr){ return prefix+'-'+String(arr.length+1).padStart(3,'0'); }
+function getEmpName(e){ return (e.first_name+' '+e.last_name).trim(); }
+function getEmpOptions(){ return DB.employees.map(e=>`<option value="${getEmpName(e)}">${getEmpName(e)} — ${e.position}</option>`).join(''); }
+function getLocationOptions(){ return DB.locations.map(l=>`<option value="${l.location_id}">${l.location_name}</option>`).join(''); }
+function getRoleOptions(){ return DB.roles.map(r=>`<option value="${r.role_name}">${r.role_name}</option>`).join(''); }
+function getDeptOptions(){ return DB.departments.map(d=>`<option value="${d.department_id}">${d.department_name}</option>`).join(''); }
+function getUserOptions(){ return LOGINABLE_USERS.map(u=>`<option value="${u.name||u.username}">${u.name||u.username}</option>`).join(''); }
+function getLocationName(id){ const l=DB.locations.find(x=>x.location_id==id); return l?l.location_name:id||'—'; }
+function getDeptName(id){ const d=DB.departments.find(x=>x.department_id==id); return d?d.department_name:'—'; }
+ 
+// ══ Автомат нууц үг үүсгэх ══
+function genPassword(){
+  const chars='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!';
+  let p='';
+  for(let i=0;i<10;i++) p+=chars[Math.floor(Math.random()*chars.length)];
+  // Ensure at least 1 uppercase, 1 lowercase, 1 digit, 1 special
+  p=p.substring(0,7)+'A1@';
+  document.getElementById('usr_pass').value=p;
+  document.getElementById('usr_pass').select();
+}
+ 
+// ══ LOGIN CHIPS — динамик дүүргэлт ══
+function renderLoginChips(){
+  const container=document.getElementById('loginChipsContainer');
+  if(!container) return;
+  const roleColors={1:'#f59e0b',2:'#3b82f6',3:'#10b981',4:'#8b5cf6',5:'#06b6d4'};
+  const now=new Date().toISOString().slice(0,10);
+ 
+  // System users chips
+  let html=SYSTEM_USERS.map(u=>{
+    const col=roleColors[u.role_id]||'#64748b';
+    const shortDept=u.dept.split(' ').slice(0,2).join(' ');
+    return `<button class="demo-chip" onclick="fillDemo('${u.username}','${u.password}','${col}')">
+      <span class="chip-dot" style="background:${col}"></span>
+      <span>${shortDept}<br><span style="font-size:9px;color:var(--text3)">${u.username}</span></span>
+    </button>`;
+  }).join('');
+ 
+  // Extra users from DB
+  const extraUsers=LOGINABLE_USERS.slice(4);
+  extraUsers.forEach(u=>{
+    const expired=u.expire_date&&u.expire_date<now;
+    const col=expired?'#64748b':'#06b6d4';
+    const expLabel=u.expire_date?(expired?`<span style="color:var(--red)">⚠ ${u.expire_date}</span>`:`<span style="color:var(--green)">✓ ${u.expire_date}</span>`):'';
+    html+=`<button class="demo-chip" style="${expired?'opacity:.45;cursor:not-allowed':''}" onclick="${expired?'showExpiredErr()':(`fillDemo('${u.username}','${u.password}','${col}')`)}">
+      <span class="chip-dot" style="background:${col}"></span>
+      <span>${u.name||u.username}<br><span style="font-size:9px;color:var(--text3)">${u.username} ${expLabel?'• ':''}</span>${expLabel}</span>
+    </button>`;
+  });
+ 
+  container.innerHTML=html;
+}
+ 
+function showExpiredErr(){
+  showErr('Энэ хэрэглэгчийн нэвтрэх хугацаа дуусчээ.');
+}
+ 
+// ══════════════════════════════════════════════
+// HASH ROUTING
+// ══════════════════════════════════════════════
+ 
+function getCurrentHash(){
+  return window.location.hash.replace('#','') || 'login';
+}
+ 
+function goTo(routeName){
+  if(!currentUser && routeName!=='login'){
+    window.location.hash='#login';
+    return;
+  }
+  _navigatingFromCode = true;
+  window.location.hash = '#' + routeName;
+  setTimeout(()=>{ _navigatingFromCode=false; }, 50);
+  showRoute(routeName);
+}
+ 
+function showRoute(routeName){
+  const route = ROUTES[routeName];
+  if(!route){ goTo('dashboard'); return; }
+  if(routeName !== 'login' && !currentUser){ showLoginPage(); return; }
+  if(routeName === 'login'){ showLoginPage(); return; }
+  document.getElementById('loginPage').classList.remove('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg = document.getElementById(route.pageId);
+  if(pg) pg.classList.add('active');
+  const b = PAGE_BADGES[routeName];
+  if(b) setUserBadge(b[0],b[1],b[2]);
+  if(route.render) route.render();
+  window.scrollTo(0,0);
+}
+ 
+function showLoginPage(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('loginPage').classList.add('active');
+}
+ 
+window.addEventListener('hashchange', function(){
+  if(_navigatingFromCode) return;
+  const hash = getCurrentHash();
+  showRoute(hash);
+});
+ 
+// ══════════════════════════════════════════════
+// AUTHENTICATION
+// ══════════════════════════════════════════════
+function fillDemo(u,p,c){
+  document.getElementById('loginUser').value=u;
+  document.getElementById('loginPass').value=p;
+  clearErr();
+  document.querySelectorAll('.demo-chip').forEach(el=>el.classList.remove('active'));
+}
+function toggleEye(){
+  const p=document.getElementById('loginPass');
+  const s=p.type==='password';
+  p.type=s?'text':'password';
+  document.getElementById('eyeShow').style.display=s?'none':'block';
+  document.getElementById('eyeHide').style.display=s?'block':'none';
+}
+function clearErr(){ document.getElementById('errBox').classList.add('hidden'); }
+function showErr(m){ document.getElementById('errBox').classList.remove('hidden'); document.getElementById('errMsg').textContent=m; }
+function updateAttempts(){
+  const r=document.getElementById('attemptRow');
+  if(attempts===0){r.style.display='none';return;}
+  r.style.display='flex';
+  for(let i=0;i<5;i++) document.getElementById('ad'+i).classList.toggle('used',i<attempts);
+  document.getElementById('attemptTxt').textContent=(5-attempts)+' оролдлого үлдсэн';
+}
+function startLock(){
+  locked=true; lockTimer=30;
+  const btn=document.getElementById('loginBtn');
+  document.getElementById('loginUser').disabled=document.getElementById('loginPass').disabled=btn.disabled=true;
+  lockInterval=setInterval(()=>{
+    lockTimer--; btn.textContent=lockTimer+'с хүлээнэ үү';
+    if(lockTimer<=0){
+      clearInterval(lockInterval);locked=false;attempts=0;
+      btn.disabled=false;btn.textContent='НЭВТРЭХ';
+      document.getElementById('loginUser').disabled=document.getElementById('loginPass').disabled=false;
+      clearErr();updateAttempts();
+    }
+  },1000);
+}
+ 
+function doLogin(){
+  if(locked) return;
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value.trim();
+  if(!u||!p){showErr('Нэвтрэх нэр болон нууц үгийг оруулна уу.');return;}
+ 
+  const now=new Date().toISOString().slice(0,10);
+ 
+  // Check if user exists but expired
+  const expiredUser=LOGINABLE_USERS.find(x=>x.username===u&&x.password===p&&x.expire_date&&x.expire_date<now);
+  if(expiredUser){
+    document.getElementById('loginCard').classList.add('shake');
+    setTimeout(()=>document.getElementById('loginCard').classList.remove('shake'),500);
+    showErr('Энэ бүртгэлийн нэвтрэх хугацаа дуусчээ ('+expiredUser.expire_date+'). Админтай холбогдоно уу.');
+    return;
+  }
+ 
+  // Normal login check — only active users, not expired
+  const user=LOGINABLE_USERS.find(x=>
+    x.username===u && x.password===p &&
+    (x.status==='Идэвхтэй'||!x.status) &&
+    (!x.expire_date||x.expire_date>=now)
+  );
+ 
+  if(user){
+    currentUser=user;
+    try{ sessionStorage.setItem('icn:session', JSON.stringify(user)); }catch(e){}
+    document.getElementById('mainLoginState').style.display='none';
+    const ss=document.getElementById('successState'); ss.classList.add('show');
+    document.getElementById('suName').textContent=user.name||user.username;
+    document.getElementById('suRole').textContent=user.dept||'Хэрэглэгч';
+    setTimeout(()=>document.getElementById('progFill').style.width='100%',50);
+    addAudit('Системд нэвтэрсэн','users',user.user_id);
+    setTimeout(()=>{
+      document.getElementById('dashGreeting').textContent='Сайн байна уу, '+(user.name||user.username)+'! ('+(user.dept||'Хэрэглэгч')+')';
+      goTo('dashboard');
+    },2000);
+  } else {
+    attempts++;
+    document.getElementById('loginCard').classList.add('shake');
+    setTimeout(()=>document.getElementById('loginCard').classList.remove('shake'),500);
+    if(attempts>=5){showErr('5 удаа буруу. 30 секунд хүлээнэ үү.');startLock();}
+    else showErr('Буруу нэвтрэх нэр эсвэл нууц үг. ('+attempts+'/5)');
+    updateAttempts();
+  }
+}
+ 
+function doLogout(){
+  addAudit('Системээс гарсан','users',currentUser?.user_id||0);
+  currentUser=null;
+  try{ sessionStorage.removeItem('icn:session'); }catch(e){}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('loginPage').classList.add('active');
+  document.getElementById('successState').classList.remove('show');
+  document.getElementById('mainLoginState').style.display='block';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('progFill').style.width='0%';
+  attempts=0;locked=false;if(lockInterval)clearInterval(lockInterval);
+  document.getElementById('loginBtn').textContent='НЭВТРЭХ';
+  document.getElementById('loginBtn').disabled=false;
+  document.getElementById('loginUser').disabled=document.getElementById('loginPass').disabled=false;
+  updateAttempts();clearErr();
+  _navigatingFromCode=true;
+  window.location.hash='#login';
+  setTimeout(()=>_navigatingFromCode=false,50);
+}
+ 
+function setUserBadge(did,nid,rid){
+  if(!currentUser)return;
+  const d=document.getElementById(did), n=document.getElementById(nid), r=document.getElementById(rid);
+  if(d)d.style.background=currentUser.color||'#64748b';
+  if(n)n.textContent=currentUser.name||currentUser.username;
+  if(r)r.textContent=currentUser.dept||'Хэрэглэгч';
+}
+ 
+// ══════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════
+function updateDashKPIs(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('kpiIncidents',DB.incidents.length);
+  set('kpiEntries',DB.access.length);
+  set('kpiVisitors',DB.visitors.length);
+  set('kpiPending',DB.incidents.filter(x=>x.status==='Хүлээгдэж буй').length);
+  set('kpiEmployees',DB.employees.length);
+  set('kpiDepts',DB.departments.length);
+  set('kpiLocations',DB.locations.length);
+  set('kpiInspections',DB.inspections.length);
+  updateLoginCount();
+}
+ 
+// ══════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ══════════════════════════════════════════════
+function sevBadge(s){
+  if(s==='Нэн яаралтай') return `<span class="badge badge-red">${s}</span>`;
+  if(s==='Дунд') return `<span class="badge badge-orange">${s}</span>`;
+  return `<span class="badge badge-gray">${s}</span>`;
+}
+function statusBadge(s){
+  const map={
+    'Шийдвэрлэсэн':'badge-green','Хийгдсэн':'badge-green','Байгаа':'badge-green','Нэвтэрсэн':'badge-green','Идэвхтэй':'badge-green',
+    'Хүлээгдэж буй':'badge-orange','Хоцорсон':'badge-red',
+    'Шийдвэрлэж байна':'badge-blue','Гарсан':'badge-blue','Идэвхгүй':'badge-gray',
+  };
+  return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`;
+}
+ 
+function renderZorchil(){
+  document.getElementById('zorchilBody').innerHTML=DB.incidents.map(r=>`<tr>
+    <td style="color:var(--accent2)">${r.id}</td><td>${r.date}</td>
+    <td style="color:var(--text)">${r.type}</td>
+    <td>${r.location||getLocationName(r.location_id)}</td>
+    <td>${sevBadge(r.severity)}</td><td>${statusBadge(r.status)}</td>
+    <td>${r.reported_by||'—'}</td><td>${r.assigned_to||'—'}</td>
+    <td><button class="tbl-action" onclick="cycleStatus('incidents','${r.id}')">Төлөв</button>
+    <button class="tbl-action danger" onclick="deleteRecord('incidents','${r.id}')">Устгах</button></td>
+  </tr>`).join('');
+  document.getElementById('zorchilCount').textContent='Нийт '+DB.incidents.length+' бүртгэл';
+}
+ 
+function renderNevtreh(){
+  document.getElementById('nevtrehBody').innerHTML=DB.access.map(r=>`<tr>
+    <td style="color:var(--accent2)">${r.id}</td><td>${r.date}</td>
+    <td style="color:var(--text)">${r.name}</td>
+    <td><span class="badge badge-purple">${r.person_type||'—'}</span></td>
+    <td>${r.location||getLocationName(r.location_id)}</td>
+    <td>${statusBadge(r.action)}</td><td>${r.approved_by||'—'}</td><td>${r.note||'—'}</td>
+    <td><button class="tbl-action danger" onclick="deleteRecord('access','${r.id}')">Устгах</button></td>
+  </tr>`).join('');
+  document.getElementById('nevtrehCount').textContent='Нийт '+DB.access.length+' бүртгэл';
+}
+ 
+function renderZochin(){
+  document.getElementById('zochinBody').innerHTML=DB.visitors.map(r=>`<tr>
+    <td style="color:var(--accent2)">${r.id}</td><td>${r.date}</td>
+    <td style="color:var(--text)">${r.fname||''}</td><td>${r.lname||''}</td>
+    <td>${r.org||'—'}</td><td>${r.purpose||'—'}</td>
+    <td><span class="badge badge-gray" style="font-size:9px">${(r.schedule||'').substring(0,12)}</span></td>
+    <td>${r.responsible||'—'}</td><td>${statusBadge(r.status)}</td>
+    <td><button class="tbl-action" onclick="visitorLeave('${r.id}')">Гарсан</button>
+    <button class="tbl-action danger" onclick="deleteRecord('visitors','${r.id}')">Устгах</button></td>
+  </tr>`).join('');
+  document.getElementById('zochinCount').textContent='Нийт '+DB.visitors.length+' бүртгэл';
+}
+ 
+function renderErguul(){
+  document.getElementById('erguulBody').innerHTML=DB.inspections.map(r=>`<tr>
+    <td style="color:var(--accent2)">${r.id}</td><td>${r.date}</td>
+    <td style="color:var(--text)">${r.employee}</td>
+    <td>${r.location||getLocationName(r.location_id)}</td>
+    <td><span class="badge badge-purple" style="font-size:9px">${r.type||'—'}</span></td>
+    <td>${r.duration||'—'}</td><td>${r.notes||'—'}</td><td>${statusBadge(r.status)}</td>
+    <td><button class="tbl-action danger" onclick="deleteRecord('inspections','${r.id}')">Устгах</button></td>
+  </tr>`).join('');
+  document.getElementById('erguulCount').textContent='Нийт '+DB.inspections.length+' бүртгэл';
+}
+ 
+function renderMedegdel(){
+  const list=document.getElementById('notifList');
+  list.innerHTML=DB.notifications.map(n=>{
+    const colors={'Яаралтай':['var(--red-bg)','var(--red)'],'Анхааруулга':['var(--orange-bg)','var(--orange)'],'Мэдээлэл':['rgba(59,130,246,0.1)','var(--accent2)']};
+    const [bg,cl]=(colors[n.type]||colors['Мэдээлэл']);
+    return `<div class="notif-card ${!n.read?'unread':''}" onclick="markRead('${n.id}')">
+      <div class="notif-icon-wrap" style="background:${bg}"><svg viewBox="0 0 24 24" style="stroke:${cl}"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <div class="notif-content"><div class="notif-title">${n.title}</div><div class="notif-msg">${n.msg}</div>
+      <div class="notif-time">${n.time} • ${n.from}${n.incident_id?' • '+n.incident_id:''}</div></div>
+      <span class="badge ${!n.read?'badge-red':'badge-green'}">${!n.read?'Уншаагүй':'Уншсан'}</span>
+    </div>`;
+  }).join('');
+}
+ 
+function renderTailan(){
+  const solved=DB.incidents.filter(x=>x.status==='Шийдвэрлэсэн').length;
+  const pct=DB.incidents.length?Math.round(solved/DB.incidents.length*100):0;
+  const typeCount={};
+  DB.incidents.forEach(x=>{typeCount[x.type]=(typeCount[x.type]||0)+1;});
+  const maxT=Math.max(...Object.values(typeCount),1);
+  const barRows=Object.entries(typeCount).slice(0,5).map(([k,v])=>
+    `<div class="bar-row"><span class="bar-label">${k}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxT*100)}%;background:var(--accent)"></div></div><span class="bar-val">${v}</span></div>`
+  ).join('');
+  const sev={a:DB.incidents.filter(x=>x.severity==='Нэн яаралтай').length,b:DB.incidents.filter(x=>x.severity==='Дунд').length,c:DB.incidents.filter(x=>x.severity==='Бага').length};
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="chart-card"><div class="chart-title">incidents — incident_type тоолол</div><div class="bar-chart">${barRows||'<div style="color:var(--text3);font-family:var(--mono);font-size:12px">Мэдээлэл байхгүй</div>'}</div></div>
+    <div class="chart-card"><div class="chart-title">severity хуваарилалт</div>
+    <div class="donut-wrap">
+      <svg viewBox="0 0 80 80" width="110" height="110">
+        <circle cx="40" cy="40" r="30" fill="none" stroke="var(--panel2)" stroke-width="12"/>
+        <circle cx="40" cy="40" r="30" fill="none" stroke="var(--red)" stroke-width="12" stroke-dasharray="${sev.a*4.4} 188" stroke-dashoffset="47" transform="rotate(-90 40 40)"/>
+        <circle cx="40" cy="40" r="30" fill="none" stroke="var(--orange)" stroke-width="12" stroke-dasharray="${sev.b*4.4} 188" stroke-dashoffset="${-(sev.a*4.4-47)}" transform="rotate(-90 40 40)"/>
+        <circle cx="40" cy="40" r="30" fill="none" stroke="var(--accent)" stroke-width="12" stroke-dasharray="${sev.c*4.4} 188" stroke-dashoffset="${-(sev.a*4.4+sev.b*4.4-47)}" transform="rotate(-90 40 40)"/>
+      </svg>
+      <ul class="legend-list">
+        <li class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Нэн яаралтай — ${sev.a}</li>
+        <li class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span>Дунд — ${sev.b}</li>
+        <li class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span>Бага — ${sev.c}</li>
+      </ul>
+    </div></div>`;
+  const pb=(p)=>p>=90?`<span class="badge badge-green">${p}%</span>`:`<span class="badge badge-orange">${p}%</span>`;
+  document.getElementById('reportBody').innerHTML=`
+    <tr><td style="color:var(--text)">incidents</td><td style="color:var(--accent2)">${DB.incidents.length}</td><td style="color:var(--green)">${solved}</td><td style="color:var(--orange)">${DB.incidents.length-solved}</td><td>${pb(pct)}</td></tr>
+    <tr><td style="color:var(--text)">access_logs</td><td style="color:var(--accent2)">${DB.access.length}</td><td style="color:var(--green)">${DB.access.length}</td><td>0</td><td>${pb(100)}</td></tr>
+    <tr><td style="color:var(--text)">visitors</td><td style="color:var(--accent2)">${DB.visitors.length}</td><td style="color:var(--green)">${DB.visitors.filter(x=>x.status==='Гарсан').length}</td><td>${DB.visitors.filter(x=>x.status==='Байгаа').length}</td><td>${pb(100)}</td></tr>
+    <tr><td style="color:var(--text)">inspections</td><td style="color:var(--accent2)">${DB.inspections.length}</td><td style="color:var(--green)">${DB.inspections.filter(x=>x.status==='Хийгдсэн').length}</td><td>${DB.inspections.filter(x=>x.status==='Хоцорсон').length}</td><td>${pb(Math.round(DB.inspections.filter(x=>x.status==='Хийгдсэн').length/Math.max(DB.inspections.length,1)*100))}</td></tr>
+    <tr><td style="color:var(--text)">notifications</td><td style="color:var(--accent2)">${DB.notifications.length}</td><td style="color:var(--green)">${DB.notifications.filter(x=>x.read).length}</td><td>${DB.notifications.filter(x=>!x.read).length}</td><td>${pb(100)}</td></tr>
+    <tr><td style="color:var(--text)">employees</td><td style="color:var(--accent2)">${DB.employees.length}</td><td style="color:var(--green)">${DB.employees.length}</td><td>0</td><td>${pb(100)}</td></tr>`;
+  document.getElementById('deptReportBody').innerHTML=DB.departments.map(d=>{
+    const ec=DB.employees.filter(e=>e.department_id==d.department_id).length;
+    return `<tr><td style="color:var(--text)">${d.department_name}</td><td style="color:var(--accent2)">${ec}</td><td>—</td><td>—</td></tr>`;
+  }).join('');
+}
+ 
+function renderRBAC(){
+  document.getElementById('rolesBody').innerHTML=DB.roles.map(r=>{
+    const cnt=LOGINABLE_USERS.filter(u=>u.role_id==r.role_id).length;
+    return `<tr><td style="color:var(--accent2)">${r.role_id}</td><td style="color:var(--text)">${r.role_name}</td><td style="color:var(--text2)">${r.description}</td><td><span class="badge badge-blue">${cnt}</span></td></tr>`;
+  }).join('');
+  const rc={1:'#f59e0b',2:'#3b82f6',3:'#10b981',4:'#8b5cf6',5:'#06b6d4'};
+  const now=new Date().toISOString().slice(0,10);
+  document.getElementById('rbacGrid').innerHTML=LOGINABLE_USERS.map((u,i)=>{
+    const role=DB.roles.find(r=>r.role_id==u.role_id)||{role_name:u.dept||'Хэрэглэгч'};
+    const col=rc[u.role_id]||'#64748b';
+    const expired=u.expire_date&&u.expire_date<now;
+    const expBadge=u.expire_date?`<span class="badge ${expired?'badge-red':'badge-green'}" style="font-size:9px">⏱ ${u.expire_date}</span>`:'';
+    return `<div class="user-card">
+      <div class="user-avatar" style="background:${col}22;color:${col}">${(u.name||u.username||'?')[0]}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||u.username}</div>
+        <div class="user-dept">${role.role_name}</div>
+        <div class="user-meta">
+          <span class="badge badge-blue" style="font-size:9px">@${u.username}</span>
+          ${statusBadge(u.status||'Идэвхтэй')}
+          ${expBadge}
+        </div>
+        ${u.password&&i>=4?`<div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px">🔑 ${u.password}</div>`:''}
+      </div>
+      <div class="user-actions">${i>=4?`<button class="tbl-action danger" onclick="deleteUser(${i})">Устгах</button>`:'<span class="badge badge-green" style="font-size:9px">Систем</span>'}</div>
+    </div>`;
+  }).join('');
+}
+ 
+function renderEmployees(){
+  document.getElementById('empBody').innerHTML=DB.employees.map(e=>`<tr>
+    <td style="color:var(--accent2)">${e.employee_id}</td><td style="color:var(--text)">${e.first_name}</td>
+    <td>${e.last_name}</td><td><span class="badge badge-purple" style="font-size:9px">${e.position}</span></td>
+    <td>${getDeptName(e.department_id)}</td><td>${e.phone||'—'}</td><td>${e.email||'—'}</td><td>${e.hire_date||'—'}</td>
+    <td><button class="tbl-action danger" onclick="deleteEmployee(${e.employee_id})">Устгах</button></td>
+  </tr>`).join('');
+  document.getElementById('empCount').textContent=DB.employees.length+' бүртгэл';
+  document.getElementById('deptCards').innerHTML=DB.departments.map(d=>{
+    const cnt=DB.employees.filter(e=>e.department_id==d.department_id).length;
+    return `<div class="dept-card"><div class="dept-name">${d.department_name}</div><div class="dept-desc">${d.description}</div>
+    <div style="display:flex;gap:8px"><span class="badge badge-blue" style="font-size:9px">dept_id:${d.department_id}</span><span class="badge badge-green" style="font-size:9px">${cnt} ажилтан</span></div></div>`;
+  }).join('');
+  document.getElementById('locBody').innerHTML=DB.locations.map(l=>`<tr>
+    <td style="color:var(--accent2)">${l.location_id}</td><td style="color:var(--text)">${l.location_name}</td>
+    <td><span class="badge badge-purple" style="font-size:9px">${l.location_type}</span></td>
+    <td>${l.address||'—'}</td><td>${l.description||'—'}</td>
+  </tr>`).join('');
+  document.getElementById('locCount').textContent=DB.locations.length+' байршил';
+}
+ 
+function switchEmpTab(tabId,btn){
+  ['empList','deptList','locList'].forEach(id=>{document.getElementById(id).style.display=id===tabId?'':'none';});
+  btn.closest('.nav-tabs').querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+ 
+function renderArchive(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('archTotal',DB.audit.length);
+  set('archToday',DB.audit.filter(x=>x.time&&x.time.includes('2025-06-18')).length);
+  set('archUsers',LOGINABLE_USERS.length);
+  document.getElementById('auditBody').innerHTML=DB.audit.slice(0,100).map(r=>`<tr>
+    <td style="color:var(--text3)">${r.time}</td><td style="color:var(--text)">${r.user}</td>
+    <td>${r.action}</td><td><span class="badge badge-blue" style="font-size:9px">${r.entity||'—'}</span></td>
+    <td style="color:var(--accent2)">${r.entity_id||'—'}</td><td style="color:var(--text3)">${r.ip||'—'}</td>
+  </tr>`).join('');
+  document.getElementById('auditCount').textContent=DB.audit.length+' лог';
+}
+ 
+// ══════════════════════════════════════════════
+// CRUD
+// ══════════════════════════════════════════════
+function saveZorchil(){
+  const now=new Date();
+  const d=document.getElementById('z_date').value||now.toISOString().slice(0,10);
+  const t=document.getElementById('z_time').value||now.toTimeString().slice(0,5);
+  const locId=parseInt(document.getElementById('z_loc_id').value)||1;
+  const rec={id:genId('INC',DB.incidents),date:d+' '+t,type:document.getElementById('z_type').value,
+    location_id:locId,location:getLocationName(locId),severity:document.getElementById('z_sev').value,
+    status:'Хүлээгдэж буй',reported_by:currentUser?currentUser.name:'Систем',
+    assigned_to:document.getElementById('z_assigned').value||'—',
+    due_date:document.getElementById('z_due').value||'—',desc:document.getElementById('z_desc').value};
+  DB.incidents.unshift(rec); dbSave('incidents');
+  DB.notifications.unshift({id:genId('NOT',DB.notifications),incident_id:rec.id,
+    title:'Шинэ зөрчил: '+rec.type,msg:rec.location+' — '+rec.severity,
+    time:'Дөнгөж сая',from:rec.reported_by,user_id:currentUser?.user_id||null,
+    type:rec.severity==='Нэн яаралтай'?'Яаралтай':'Анхааруулга',read:false});
+  dbSave('notifications');
+  addAudit('Зөрчил бүртгэсэн','incidents',rec.id);
+  closeModal('zorchilModal'); renderZorchil(); updateDashKPIs();
+  showToast('incidents: '+rec.id+' бүртгэгдлээ','success');
+}
+ 
+function saveNevtreh(){
+  const locId=parseInt(document.getElementById('nv_loc_id').value)||1;
+  const rec={id:genId('ALG',DB.access),date:new Date().toLocaleString('mn-MN'),
+    name:document.getElementById('nv_name').value||'Тодорхойгүй',
+    position:document.getElementById('nv_pos').value||'—',
+    location_id:locId,location:getLocationName(locId),
+    action:document.getElementById('nv_action').value,
+    person_type:document.getElementById('nv_ptype').value,
+    approved_by:document.getElementById('nv_approved').value||'—',
+    note:document.getElementById('nv_note').value||'—'};
+  DB.access.unshift(rec); dbSave('access');
+  addAudit(rec.action+' бүртгэл','access_logs',rec.id);
+  closeModal('nevtrehModal'); renderNevtreh(); updateDashKPIs();
+  showToast('access_logs: '+rec.id+' хадгалагдлаа','success');
+}
+ 
+function saveZochin(){
+  const rec={id:genId('VIS',DB.visitors),date:new Date().toLocaleString('mn-MN'),
+    fname:document.getElementById('zc_fname').value||'Тодорхойгүй',
+    lname:document.getElementById('zc_lname').value||'',
+    org:document.getElementById('zc_org').value||'—',
+    reg:document.getElementById('zc_reg').value||'—',
+    purpose:document.getElementById('zc_purp').value||'—',
+    responsible:document.getElementById('zc_resp').value,
+    schedule:'Урьдчилсан бүртгэлгүй',status:'Байгаа'};
+  DB.visitors.unshift(rec); dbSave('visitors');
+  addAudit('Зочин бүртгэсэн','visitors',rec.id);
+  closeModal('zochinModal'); renderZochin(); updateDashKPIs();
+  showToast('visitors: '+rec.id+' бүртгэгдлээ','success');
+}
+ 
+function saveErguul(){
+  const locId=parseInt(document.getElementById('eg_loc_id').value)||1;
+  const dur=document.getElementById('eg_dur').value;
+  const rec={id:genId('INS',DB.inspections),date:new Date().toLocaleString('mn-MN'),
+    employee:document.getElementById('eg_emp').value,location_id:locId,location:getLocationName(locId),
+    type:document.getElementById('eg_type').value,duration:dur?dur+' мин':'—',
+    notes:document.getElementById('eg_note').value||'—',status:'Хийгдсэн',
+    approved_by:document.getElementById('eg_approved').value||'—'};
+  DB.inspections.unshift(rec); dbSave('inspections');
+  addAudit('Эргүүл бүртгэсэн','inspections',rec.id);
+  closeModal('erguulModal'); renderErguul(); updateDashKPIs();
+  showToast('inspections: '+rec.id+' бүртгэгдлээ','success');
+}
+ 
+function saveMedegdel(){
+  const rec={id:genId('NOT',DB.notifications),incident_id:null,
+    title:document.getElementById('md_title').value||'Шинэ мэдэгдэл',
+    msg:document.getElementById('md_msg').value||'—',
+    time:new Date().toLocaleString('mn-MN'),from:currentUser?currentUser.name:'Систем',
+    user_id:currentUser?.user_id||null,type:document.getElementById('md_type').value,read:false};
+  DB.notifications.unshift(rec); dbSave('notifications');
+  addAudit('Мэдэгдэл илгээсэн','notifications',rec.id);
+  closeModal('medegdelModal'); renderMedegdel();
+  showToast('notifications: '+rec.id+' илгээгдлээ','success');
+}
+ 
+// ══ ХЭРЭГЛЭГЧ НЭМЭХ — password + expire_date хадгалагдана ══
+function saveUser(){
+  const roleName=document.getElementById('usr_role').value;
+  const role=DB.roles.find(r=>r.role_name===roleName)||DB.roles[2];
+  const deptId=parseInt(document.getElementById('usr_dept_id').value)||1;
+  const dept=DB.departments.find(d=>d.department_id==deptId);
+  const passVal=document.getElementById('usr_pass').value.trim()||'User@1234';
+  const expireVal=document.getElementById('usr_expire').value||'';
+  const usernameVal=document.getElementById('usr_uname').value.trim()||('user'+Date.now());
+  const nameVal=document.getElementById('usr_fname').value.trim()||'Нэргүй';
+ 
+  // Давхардсан username шалгах
+  if(LOGINABLE_USERS.find(x=>x.username===usernameVal)){
+    showToast('username "'+usernameVal+'" аль хэдийн бүртгэлтэй байна!','error');
+    return;
+  }
+ 
+  const rec={
+    user_id:LOGINABLE_USERS.length+1,
+    username:usernameVal,
+    password:passVal,
+    expire_date:expireVal,
+    name:nameVal,
+    dept:dept?.department_name||roleName,
+    color:'#06b6d4',
+    role_id:role.role_id,
+    employee_id:null,
+    status:document.getElementById('usr_status').value||'Идэвхтэй'
+  };
+ 
+  DB.users.push(rec);
+  dbSave('users');
+ 
+  // ══ Нэвтрэх хэсэгт шууд нэмэгдэнэ ══
+  LOGINABLE_USERS.push(rec);
+  renderLoginChips(); // Login хуудасны chip шинэчлэх
+ 
+  addAudit('Хэрэглэгч нэмсэн','users',rec.user_id);
+  closeModal('userModal');
+  renderRBAC();
+  showToast(`✓ ${rec.username} бүртгэгдлээ | нууц үг: ${passVal}${expireVal?' | дуусна: '+expireVal:''}`, 'success');
+}
+ 
+function saveEmployee(){
+  const deptId=parseInt(document.getElementById('emp_dept').value)||1;
+  const rec={employee_id:DB.employees.length+1,department_id:deptId,
+    first_name:document.getElementById('emp_fname').value||'Нэргүй',
+    last_name:document.getElementById('emp_lname').value||'',
+    position:document.getElementById('emp_pos').value||'—',
+    phone:document.getElementById('emp_phone').value||'—',
+    email:document.getElementById('emp_email').value||'—',
+    hire_date:document.getElementById('emp_hire').value||new Date().toISOString().slice(0,10)};
+  DB.employees.push(rec); dbSave('employees');
+  addAudit('Ажилтан нэмсэн','employees',rec.employee_id);
+  closeModal('empModal'); renderEmployees(); updateDashKPIs();
+  showToast('employees: '+rec.employee_id+' бүртгэгдлээ','success');
+}
+ 
+function deleteRecord(table,id){
+  if(!confirm('Энэ бүртгэлийг устгах уу?')) return;
+  DB[table]=DB[table].filter(x=>x.id!==id); dbSave(table);
+  addAudit('Бүртгэл устгасан',table,id);
+  if(table==='incidents') renderZorchil();
+  if(table==='access') renderNevtreh();
+  if(table==='visitors') renderZochin();
+  if(table==='inspections') renderErguul();
+  updateDashKPIs();
+  showToast(id+' устгагдлаа','info');
+}
+ 
+function deleteEmployee(empId){
+  if(!confirm('Ажилтан устгах уу?')) return;
+  DB.employees=DB.employees.filter(e=>e.employee_id!==empId); dbSave('employees');
+  addAudit('Ажилтан устгасан','employees',empId);
+  renderEmployees(); updateDashKPIs();
+  showToast('employee_id:'+empId+' устгагдлаа','info');
+}
+ 
+function deleteUser(idx){
+  if(!confirm('Хэрэглэгчийг устгах уу?')) return;
+  const u=LOGINABLE_USERS[idx];
+  LOGINABLE_USERS.splice(idx,1);
+  DB.users=DB.users.filter(x=>x.username!==u.username);
+  dbSave('users');
+  addAudit('Хэрэглэгч устгасан','users',u.user_id);
+  renderRBAC();
+  renderLoginChips();
+  showToast('users: '+u.username+' устгагдлаа','info');
+}
+ 
+function cycleStatus(table,id){
+  const rec=DB[table].find(x=>x.id===id); if(!rec) return;
+  const cycle=['Хүлээгдэж буй','Шийдвэрлэж байна','Шийдвэрлэсэн'];
+  rec.status=cycle[(cycle.indexOf(rec.status)+1)%cycle.length];
+  dbSave(table); addAudit('Төлөв өөрчилсэн','incidents',id);
+  renderZorchil(); updateDashKPIs();
+  showToast('status: '+rec.status,'success');
+}
+ 
+function visitorLeave(id){
+  const r=DB.visitors.find(x=>x.id===id); if(!r) return;
+  r.status='Гарсан'; dbSave('visitors');
+  addAudit('Зочин гарсан','visitors',id);
+  renderZochin(); updateDashKPIs();
+  showToast(r.fname+' '+r.lname+' гарлаа','info');
+}
+ 
+function markRead(id){
+  const n=DB.notifications.find(x=>x.id===id);
+  if(!n||n.read) return;
+  n.read=true; dbSave('notifications'); renderMedegdel();
+}
+ 
+function exportReport(){
+  DB.reports.unshift({report_id:DB.reports.length+1,incident_id:null,created_by:currentUser?.user_id||1,
+    period_start:new Date().toISOString().slice(0,10),period_end:new Date().toISOString().slice(0,10),
+    file_path:'/reports/export_'+Date.now()+'.xlsx',note:'Гараар экспортолсон',created_at:new Date().toISOString()});
+  dbSave('reports');
+  showToast('Тайлан reports хүснэгтэд хадгалагдлаа','success');
+}
+ 
+function resetDB(){
+  for(const key of Object.keys(DB_KEYS)){ try{store.remove(DB_KEYS[key]);}catch(e){} DB[key]=[]; }
+  DB.users=[...SYSTEM_USERS];
+  LOGINABLE_USERS=[...SYSTEM_USERS];
+  seedData(); updateDashKPIs(); renderArchive(); renderLoginChips();
+  showToast('Мэдээллийн сан дахин тохируулагдлаа','info');
+}
+ 
+// ══════════════════════════════════════════════
+// SEARCH & FILTER
+// ══════════════════════════════════════════════
+function filterTable(tableId,query){
+  const rows=document.getElementById(tableId)?.querySelectorAll('tbody tr'); if(!rows) return;
+  const q=query.toLowerCase();
+  rows.forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});
+}
+function filterByStatus(tableId,status,btn){
+  btn.closest('.table-toolbar').querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  const rows=document.getElementById(tableId)?.querySelectorAll('tbody tr'); if(!rows) return;
+  rows.forEach(r=>{r.style.display=(!status||r.textContent.includes(status))?'':'none';});
+}
+ 
+// ══════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════
+function openModal(id){
+  document.getElementById(id).classList.remove('hidden');
+  if(id==='zorchilModal'){
+    document.getElementById('z_loc_id').innerHTML=getLocationOptions();
+    document.getElementById('z_assigned').innerHTML='<option value="—">— Сонгоогүй —</option>'+getEmpOptions();
+    const now=new Date();
+    document.getElementById('z_date').value=now.toISOString().slice(0,10);
+    document.getElementById('z_time').value=now.toTimeString().slice(0,5);
+  }
+  if(id==='nevtrehModal'){
+    document.getElementById('nv_loc_id').innerHTML=getLocationOptions();
+    document.getElementById('nv_approved').innerHTML='<option value="—">— Сонгоогүй —</option>'+getEmpOptions();
+  }
+  if(id==='zochinModal'){ document.getElementById('zc_resp').innerHTML=getEmpOptions(); }
+  if(id==='erguulModal'){
+    document.getElementById('eg_emp').innerHTML=getEmpOptions();
+    document.getElementById('eg_approved').innerHTML='<option value="—">— Сонгоогүй —</option>'+getEmpOptions();
+    document.getElementById('eg_loc_id').innerHTML=getLocationOptions();
+    document.getElementById('eg_start').value=new Date().toTimeString().slice(0,5);
+  }
+  if(id==='medegdelModal'){ document.getElementById('md_to').innerHTML=getUserOptions(); }
+  if(id==='userModal'){
+    document.getElementById('usr_role').innerHTML=getRoleOptions();
+    document.getElementById('usr_dept_id').innerHTML=getDeptOptions();
+    document.getElementById('usr_pass').value='';
+    document.getElementById('usr_fname').value='';
+    document.getElementById('usr_uname').value='';
+    // Анхдагч expire: 1 жилийн дараа
+    const expDef=new Date(); expDef.setFullYear(expDef.getFullYear()+1);
+    document.getElementById('usr_expire').value=expDef.toISOString().slice(0,10);
+  }
+  if(id==='empModal'){
+    document.getElementById('emp_dept').innerHTML=getDeptOptions();
+    document.getElementById('emp_hire').value=new Date().toISOString().slice(0,10);
+  }
+}
+function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',function(e){if(e.target===this)this.classList.add('hidden');});
+});
+ 
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function showToast(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const icons={success:'✓',error:'✗',info:'ℹ'};
+  t.innerHTML=`<span style="color:${type==='success'?'var(--green)':type==='error'?'var(--red)':'var(--accent)'}">${icons[type]||'ℹ'}</span> ${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},4000);
+}
+ 
+// ══════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════
+const clockIds=['dashClock','z1clock','n1clock','z2clock','e1clock','m1clock','t1clock','r1clock','a1clock','em1clock'];
+function tickAll(){
+  const s=new Date().toLocaleDateString('mn-MN')+'  '+new Date().toLocaleTimeString('mn-MN');
+  clockIds.forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});
+  const cl=document.getElementById('clockInLogin');
+  if(cl)cl.textContent='Систем идэвхтэй — '+s;
+}
+tickAll(); setInterval(tickAll,1000);
+ 
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+(function init(){
+  dbLoad();
+ 
+  // localStorage-д хадгалагдсан нэмэлт хэрэглэгчдийг LOGINABLE_USERS-д нэмэх
+  if(DB.users.length>4){
+    DB.users.slice(4).forEach(u=>{
+      if(!LOGINABLE_USERS.find(x=>x.username===u.username)) LOGINABLE_USERS.push(u);
+    });
+  }
+ 
+  // Login chips дүүргэх
+  renderLoginChips();
+ 
+  // Session шалгах
+  const savedUser = (()=>{ try{ const v=sessionStorage.getItem('icn:session'); return v?JSON.parse(v):null; } catch(e){ return null; }})();
+  const hash = getCurrentHash();
+ 
+  if(savedUser && hash !== 'login'){
+    currentUser = savedUser;
+    document.getElementById('dashGreeting').textContent='Сайн байна уу, '+(savedUser.name||savedUser.username)+'! ('+(savedUser.dept||'Хэрэглэгч')+')';
+    showRoute(hash || 'dashboard');
+  } else if(hash && hash !== 'login' && !savedUser){
+    showLoginPage();
+    _navigatingFromCode=true;
+    window.location.hash='#login';
+    setTimeout(()=>_navigatingFromCode=false,50);
+  } else {
+    showLoginPage();
+  }
+})();
+ 
+// Logout button event — session clear
+document.querySelectorAll('.logout-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{ try{sessionStorage.removeItem('icn:session');}catch(e){} });
+});
+</script>
+</body>
+</html>
