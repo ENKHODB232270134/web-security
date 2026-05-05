@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICN Security — Хэрэглэгчийн тохиргоо</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="stylesheet" href="../css/table.css" />
+  <link rel="stylesheet" href="../css/modal.css" />
+  <link rel="stylesheet" href="../css/settings.css" />
+</head>
+<body data-protected="true" data-page="settings">
+  <div class="toast-container" id="toastContainer"></div>
+  <div class="page-shell">
+    <nav class="topbar">
+      <div class="topbar-left">
+        <button class="back-btn" onclick="goTo('dashboard')">Буцах</button>
+        <a class="topbar-logo" onclick="goTo('dashboard')">
+          <div class="topbar-shield"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div>
+          <span class="topbar-title">ICN SECURITY</span>
+        </a>
+        <div class="topbar-div"></div>
+        <span class="topbar-sys">Тохиргоо</span>
+      </div>
+      <div class="topbar-right">
+        <div class="db-indicator"><div class="db-dot"></div><span>Profile Sync</span></div>
+        <span class="topbar-clock" data-clock></span>
+        <div class="user-badge" data-profile-link><div class="u-dot" data-user-dot></div><div><div class="u-name" data-user-name></div><div class="u-role" data-user-role></div></div></div>
+        <button class="logout-btn" onclick="doLogout()">Гарах</button>
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="settings-breadcrumb">
+        <button type="button" onclick="goTo('dashboard')">Дашбоард</button>
+        <span>/</span>
+        <span>Тохиргоо</span>
+      </div>
+
+      <div class="dash-header">
+        <div class="dash-greeting">Хэрэглэгчийн тохиргоо</div>
+        <div class="dash-sub">Профайл, нууц үг, theme, accent color болон мэдэгдлийн сонголтоо нэг дор удирдана.</div>
+      </div>
+
+      <div class="settings-layout">
+        <aside class="settings-card profile-card">
+          <div class="settings-avatar" id="settingsAvatar">U</div>
+          <h2 id="profileSummaryName">Хэрэглэгч</h2>
+          <p id="profileSummaryRole">Role</p>
+          <p id="profileSummaryEmail"></p>
+
+          <form class="avatar-actions" id="avatarForm">
+            <input class="file-input" type="file" id="avatarInput" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+            <button class="btn-add" type="button" onclick="document.getElementById('avatarInput').click()">Зураг солих</button>
+            <button class="btn-save" type="submit">Хадгалах</button>
+          </form>
+        </aside>
+
+        <section>
+          <article class="settings-card section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Profile Settings</h2>
+                <p class="section-sub">Нэр, албан тушаал, хэлтэс болон товч танилцуулгаа шинэчилнэ.</p>
+              </div>
+            </div>
+            <form class="settings-form" id="profileForm">
+              <div class="settings-grid">
+                <div class="form-group"><label class="form-label">full name</label><input class="form-input" id="fullName" required /></div>
+                <div class="form-group"><label class="form-label">email</label><input class="form-input" id="email" type="email" required /></div>
+                <div class="form-group"><label class="form-label">phone number</label><input class="form-input" id="phone" /></div>
+                <div class="form-group"><label class="form-label">job title</label><input class="form-input" id="jobTitle" /></div>
+                <div class="form-group"><label class="form-label">department</label><input class="form-input" id="department" /></div>
+                <div class="form-group"><label class="form-label">role display name</label><input class="form-input" id="roleDisplayName" /></div>
+              </div>
+              <div class="form-group"><label class="form-label">bio / short description</label><textarea class="form-textarea" id="bio" maxlength="600"></textarea></div>
+              <div class="settings-actions"><button class="btn-save" id="saveProfileBtn" type="submit">Хадгалах</button></div>
+            </form>
+          </article>
+
+          <article class="settings-card section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Account Security</h2>
+                <p class="section-sub">Нууц үг шинэчлэхийн өмнө одоогийн нууц үгээ баталгаажуулна.</p>
+              </div>
+            </div>
+            <form class="settings-form" id="passwordForm">
+              <div class="settings-grid">
+                <div class="form-group"><label class="form-label">current password</label><input class="form-input" id="currentPassword" type="password" required /></div>
+                <div class="form-group"><label class="form-label">new password</label><input class="form-input" id="newPassword" type="password" minlength="6" required /></div>
+                <div class="form-group"><label class="form-label">confirm new password</label><input class="form-input" id="confirmPassword" type="password" minlength="6" required /></div>
+              </div>
+              <div class="settings-actions"><button class="btn-save" type="submit">Нууц үг шинэчлэх</button></div>
+            </form>
+          </article>
+
+          <article class="settings-card section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Appearance / Theme</h2>
+                <p class="section-sub">Theme болон accent color шууд хэрэгжинэ, MongoDB профайл дээр хадгалагдана.</p>
+              </div>
+            </div>
+            <div class="settings-form">
+              <div class="theme-options">
+                <button class="theme-card" data-theme="dark" type="button"><strong>Dark mode</strong><span>Cyber dark dashboard</span></button>
+                <button class="theme-card" data-theme="light" type="button"><strong>Light mode</strong><span>Цайвар ажлын орчин</span></button>
+                <button class="theme-card" data-theme="system" type="button"><strong>System default</strong><span>Device тохиргоо дагана</span></button>
+              </div>
+              <div class="accent-options">
+                <button class="accent-card" data-accent="blue" type="button"><i class="swatch" style="--swatch:#3b82f6"></i><strong>Blue</strong></button>
+                <button class="accent-card" data-accent="green" type="button"><i class="swatch" style="--swatch:#10b981"></i><strong>Green</strong></button>
+                <button class="accent-card" data-accent="purple" type="button"><i class="swatch" style="--swatch:#8b5cf6"></i><strong>Purple</strong></button>
+                <button class="accent-card" data-accent="orange" type="button"><i class="swatch" style="--swatch:#f59e0b"></i><strong>Orange</strong></button>
+                <button class="accent-card" data-accent="red" type="button"><i class="swatch" style="--swatch:#ef4444"></i><strong>Red</strong></button>
+              </div>
+              <div class="theme-preview" aria-label="Theme preview">
+                <div class="theme-preview-card">
+                  <div class="preview-line wide"></div>
+                  <div class="preview-line mid"></div>
+                  <div class="preview-chip"></div>
+                </div>
+                <div class="theme-preview-meta">
+                  <strong>Theme preview</strong>
+                  <span>Сонгосон theme болон accent өнгө шууд харагдана.</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="settings-card section-card">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">Notifications</h2>
+                <p class="section-sub">Email, dashboard alert, incident update, visitor alert тохиргоо.</p>
+              </div>
+            </div>
+            <form id="notificationForm">
+              <div class="toggle-list">
+                <label class="toggle-row"><span><strong>Email notifications</strong><span>Email мэдэгдэл авах</span></span><span class="switch"><input type="checkbox" id="emailNotifications" /><span class="slider"></span></span></label>
+                <label class="toggle-row"><span><strong>Dashboard alerts</strong><span>Dashboard дээр alert харуулах</span></span><span class="switch"><input type="checkbox" id="dashboardAlerts" /><span class="slider"></span></span></label>
+                <label class="toggle-row"><span><strong>Incident updates</strong><span>Зөрчлийн өөрчлөлт мэдэгдэх</span></span><span class="switch"><input type="checkbox" id="incidentUpdates" /><span class="slider"></span></span></label>
+                <label class="toggle-row"><span><strong>Visitor alerts</strong><span>Зочны бүртгэлийн alert</span></span><span class="switch"><input type="checkbox" id="visitorAlerts" /><span class="slider"></span></span></label>
+              </div>
+              <div class="settings-actions"><button class="btn-save" type="submit">Хадгалах</button></div>
+            </form>
+          </article>
+        </section>
+      </div>
+    </main>
+    <footer class="page-footer"><span>ICN — Хэрэглэгчийн тохиргоо</span><span>Profile + Theme + Notifications</span></footer>
+  </div>
+  <script src="../js/api.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/settings.js"></script>
+</body>
+</html>

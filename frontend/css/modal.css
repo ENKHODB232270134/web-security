@@ -22,7 +22,7 @@
   border: 1px solid var(--border2);
   border-radius: 12px;
   background: var(--panel);
-  box-shadow: 0 0 60px rgba(59, 130, 246, 0.1), 0 40px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.1), var(--shadow);
 }
 
 .modal-top-bar {
@@ -106,7 +106,7 @@
   border: 1px solid var(--border2);
   border-radius: 6px;
   outline: none;
-  background: var(--panel2);
+  background: var(--input-bg);
   color: var(--text);
   font-family: var(--mono);
   font-size: 12px;
@@ -140,9 +140,72 @@
   border-radius: 8px;
   background: var(--panel);
   color: var(--text2);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-soft);
   font-family: var(--mono);
   font-size: 12px;
+}
+
+body.theme-light .overlay,
+body.theme-system.theme-resolved-light .overlay {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+body.theme-light .modal,
+body.theme-system.theme-resolved-light .modal {
+  background: #ffffff;
+  border-color: var(--border);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.16);
+}
+
+body.theme-light .modal-head,
+body.theme-light .modal-foot,
+body.theme-system.theme-resolved-light .modal-head,
+body.theme-system.theme-resolved-light .modal-foot {
+  background: #f8fafc;
+  border-color: var(--border);
+}
+
+body.theme-light .modal-title,
+body.theme-system.theme-resolved-light .modal-title {
+  color: var(--text);
+}
+
+body.theme-light .form-input,
+body.theme-light .form-select,
+body.theme-light .form-textarea,
+body.theme-system.theme-resolved-light .form-input,
+body.theme-system.theme-resolved-light .form-select,
+body.theme-system.theme-resolved-light .form-textarea {
+  background: #ffffff;
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+body.theme-light .form-input::placeholder,
+body.theme-light .form-textarea::placeholder,
+body.theme-system.theme-resolved-light .form-input::placeholder,
+body.theme-system.theme-resolved-light .form-textarea::placeholder {
+  color: var(--text-soft);
+}
+
+body.theme-light .toast,
+body.theme-system.theme-resolved-light .toast {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--text-muted);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+}
+
+body.theme-light .toast.success,
+body.theme-system.theme-resolved-light .toast.success {
+  border-color: rgba(5, 150, 105, 0.32);
+  color: #047857;
+}
+
+body.theme-light .toast.error,
+body.theme-system.theme-resolved-light .toast.error {
+  border-color: rgba(220, 38, 38, 0.32);
+  color: #b91c1c;
 }
 
 .toast.success {

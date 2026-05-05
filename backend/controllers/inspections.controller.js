@@ -21,6 +21,27 @@ function mapInspection(doc) {
   };
 }
 
+function normalizeInspectionType(value) {
+  const map = {
+    patrol: "Эргүүл шалгалт",
+    route: "Эргүүл шалгалт",
+    object: "Объектын үзлэг",
+    post: "Постын хяналт",
+    technical: "Техникийн хяналт",
+  };
+  return map[String(value || "").toLowerCase()] || value || "Эргүүл шалгалт";
+}
+
+function normalizeInspectionStatus(value) {
+  const map = {
+    done: "Хийгдсэн",
+    completed: "Хийгдсэн",
+    late: "Хоцорсон",
+    pending: "Хүлээгдэж буй",
+  };
+  return map[String(value || "").toLowerCase()] || value || "Хийгдсэн";
+}
+
 const getInspections = asyncHandler(async (req, res) => {
   const inspections = await Inspection.find()
     .populate("location")
@@ -38,7 +59,7 @@ const createInspection = asyncHandler(async (req, res) => {
 
   const inspection = await Inspection.create({
     code: await nextCode(Inspection, "INS"),
-    inspectionType: req.body.inspectionType || "Эргүүл шалгалт",
+    inspectionType: normalizeInspectionType(req.body.inspectionType),
     location,
     locationName,
     inspectedBy: inspected.employee,
@@ -47,7 +68,7 @@ const createInspection = asyncHandler(async (req, res) => {
     approvedByName: approved.employeeName,
     inspectionDate: req.body.inspectionDate || new Date(),
     durationMinutes: Number(req.body.durationMinutes || 0),
-    status: req.body.status || "Хийгдсэн",
+    status: normalizeInspectionStatus(req.body.status),
     notes: req.body.notes || "",
     checklistItems: req.body.checklistItems || [],
   });
@@ -61,9 +82,22 @@ const updateInspection = asyncHandler(async (req, res) => {
   const inspection = await Inspection.findById(req.params.id);
   if (!inspection) return res.status(404).json({ message: "Үзлэгийн бүртгэл олдсонгүй" });
 
-  inspection.status = req.body.status || inspection.status;
+  const { location, locationName } = await resolveLocation(req.body);
+  const inspected = await resolveEmployee(req.body.inspectedBy || req.body.inspectedByName);
+  const approved = await resolveEmployee(req.body.approvedBy || req.body.approvedByName);
+
+  inspection.inspectionType = req.body.inspectionType ? normalizeInspectionType(req.body.inspectionType) : inspection.inspectionType;
+  inspection.location = location || inspection.location;
+  inspection.locationName = locationName || inspection.locationName;
+  inspection.inspectedBy = inspected.employee || inspection.inspectedBy;
+  inspection.inspectedByName = inspected.employeeName || inspection.inspectedByName;
+  inspection.approvedBy = approved.employee || inspection.approvedBy;
+  inspection.approvedByName = approved.employeeName || inspection.approvedByName;
+  inspection.inspectionDate = req.body.inspectionDate || inspection.inspectionDate;
+  inspection.status = req.body.status ? normalizeInspectionStatus(req.body.status) : inspection.status;
   inspection.notes = req.body.notes ?? inspection.notes;
   inspection.durationMinutes = req.body.durationMinutes ?? inspection.durationMinutes;
+  inspection.checklistItems = req.body.checklistItems || inspection.checklistItems;
   await inspection.save();
 
   await createAudit(req, "Эргүүл шинэчилсэн", "inspections", inspection.code);
@@ -71,4 +105,12 @@ const updateInspection = asyncHandler(async (req, res) => {
   res.json({ data: mapInspection(saved) });
 });
 
-module.exports = { getInspections, createInspection, updateInspection };
+const deleteInspection = asyncHandler(async (req, res) => {
+  const inspection = await Inspection.findByIdAndDelete(req.params.id);
+  if (!inspection) return res.status(404).json({ message: "Үзлэгийн бүртгэл олдсонгүй" });
+
+  await createAudit(req, "Эргүүл устгасан", "inspections", inspection.code);
+  res.json({ message: "inspection устгагдлаа" });
+});
+
+module.exports = { getInspections, createInspection, updateInspection, deleteInspection };

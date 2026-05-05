@@ -46,7 +46,7 @@
       if (response.status === 401) {
         clearSession();
         if (!location.pathname.endsWith("/login.html") && location.pathname !== "/") {
-          location.href = "/pages/login.html";
+          location.href = "/login.html";
         }
       }
 

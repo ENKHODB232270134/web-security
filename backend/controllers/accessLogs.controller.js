@@ -20,6 +20,28 @@ function mapAccessLog(doc) {
   };
 }
 
+function normalizePersonType(value) {
+  const map = {
+    employee: "Ажилтан",
+    staff: "Ажилтан",
+    visitor: "Зочин",
+    vehicle: "Тээврийн хэрэгсэл",
+  };
+  return map[String(value || "").toLowerCase()] || value || "Ажилтан";
+}
+
+function normalizeAccessType(value) {
+  const map = {
+    in: "Нэвтэрсэн",
+    entry: "Нэвтэрсэн",
+    enter: "Нэвтэрсэн",
+    out: "Гарсан",
+    exit: "Гарсан",
+    leave: "Гарсан",
+  };
+  return map[String(value || "").toLowerCase()] || value || "Нэвтэрсэн";
+}
+
 const getAccessLogs = asyncHandler(async (req, res) => {
   const accessLogs = await AccessLog.find()
     .populate("location")
@@ -35,12 +57,12 @@ const createAccessLog = asyncHandler(async (req, res) => {
 
   const accessLog = await AccessLog.create({
     code: await nextCode(AccessLog, "ALG"),
-    personType: req.body.personType || "Ажилтан",
+    personType: normalizePersonType(req.body.personType),
     personName: req.body.personName || "Тодорхойгүй",
     position: req.body.position || "",
     location,
     locationName,
-    accessType: req.body.accessType || "Нэвтэрсэн",
+    accessType: normalizeAccessType(req.body.accessType),
     accessTime: req.body.accessTime || new Date(),
     approvedBy: approved.employee,
     approvedByName: approved.employeeName,
@@ -53,4 +75,37 @@ const createAccessLog = asyncHandler(async (req, res) => {
   res.status(201).json({ data: mapAccessLog(saved) });
 });
 
-module.exports = { getAccessLogs, createAccessLog };
+const updateAccessLog = asyncHandler(async (req, res) => {
+  const accessLog = await AccessLog.findById(req.params.id);
+  if (!accessLog) return res.status(404).json({ message: "access log олдсонгүй" });
+
+  const { location, locationName } = await resolveLocation(req.body);
+  const approved = await resolveEmployee(req.body.approvedBy || req.body.approvedByName);
+
+  accessLog.personType = req.body.personType ? normalizePersonType(req.body.personType) : accessLog.personType;
+  accessLog.personName = req.body.personName || accessLog.personName;
+  accessLog.position = req.body.position ?? accessLog.position;
+  accessLog.location = location || accessLog.location;
+  accessLog.locationName = locationName || accessLog.locationName;
+  accessLog.accessType = req.body.accessType ? normalizeAccessType(req.body.accessType) : accessLog.accessType;
+  accessLog.accessTime = req.body.accessTime || accessLog.accessTime;
+  accessLog.approvedBy = approved.employee || accessLog.approvedBy;
+  accessLog.approvedByName = approved.employeeName || accessLog.approvedByName;
+  accessLog.purpose = req.body.purpose ?? accessLog.purpose;
+  accessLog.note = req.body.note ?? accessLog.note;
+
+  await accessLog.save();
+  await createAudit(req, "Нэвтрэх/гарах бүртгэл шинэчилсэн", "access_logs", accessLog.code);
+  const saved = await AccessLog.findById(accessLog._id).populate("location").populate("approvedBy");
+  res.json({ data: mapAccessLog(saved) });
+});
+
+const deleteAccessLog = asyncHandler(async (req, res) => {
+  const accessLog = await AccessLog.findByIdAndDelete(req.params.id);
+  if (!accessLog) return res.status(404).json({ message: "access log олдсонгүй" });
+
+  await createAudit(req, "Нэвтрэх/гарах бүртгэл устгасан", "access_logs", accessLog.code);
+  res.json({ message: "access log устгагдлаа" });
+});
+
+module.exports = { getAccessLogs, createAccessLog, updateAccessLog, deleteAccessLog };

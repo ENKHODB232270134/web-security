@@ -1,6 +1,6 @@
 (function initCommonApp() {
   const pageMap = {
-    login: "/pages/login.html",
+    login: "/login.html",
     dashboard: "/pages/dashboard.html",
     incidents: "/pages/incidents.html",
     access: "/pages/access-logs.html",
@@ -11,6 +11,7 @@
     rbac: "/pages/rbac.html",
     employees: "/pages/employees.html",
     audit: "/pages/audit.html",
+    settings: "/pages/settings.html",
   };
 
   const roleColors = {
@@ -151,15 +152,24 @@
       el.textContent = user?.role?.label || "viewer";
     });
     document.querySelectorAll("[data-user-dot]").forEach((el) => {
-      el.style.background = color;
-      el.style.boxShadow = `0 0 12px ${color}66`;
+      if (user?.avatarUrl) {
+        el.classList.add("has-avatar");
+        el.style.background = `url("${user.avatarUrl}") center / cover`;
+        el.style.boxShadow = `0 0 18px ${color}66`;
+      } else {
+        el.classList.remove("has-avatar");
+        el.style.background = color;
+        el.style.backgroundImage = "";
+        el.style.boxShadow = `0 0 12px ${color}66`;
+      }
     });
+    if (window.ThemeManager) window.ThemeManager.applyFromUser(user);
   }
 
   async function requireAuth() {
     const token = API.getToken();
     if (!token) {
-      location.href = "/pages/login.html";
+      location.href = "/login.html";
       return null;
     }
 
@@ -176,7 +186,7 @@
 
   function logout() {
     API.clearSession();
-    location.href = "/pages/login.html";
+    location.href = "/login.html";
   }
 
   function tickClock() {

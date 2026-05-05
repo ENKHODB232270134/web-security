@@ -1,0 +1,26 @@
+@import url("./style.css");
+@import url("./auth.css");
+@import url("./dashboard.css");
+@import url("./table.css");
+@import url("./modal.css");
+
+/* Small global polish layer used by the simplified file structure request. */
+.btn-add,
+.btn-login,
+.btn-save,
+.mod-card,
+.kpi,
+.table-wrap,
+.modal,
+.login-card {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-login:hover:not(:disabled),
+.btn-save:hover:not(:disabled) {
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.28);
+}
+
+.form-input:invalid:not(:placeholder-shown) {
+  border-color: rgba(239, 68, 68, 0.55);
+}

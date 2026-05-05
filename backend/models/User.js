@@ -11,6 +11,14 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minlength: 3,
     },
+    email: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Email format буруу байна"],
+    },
     passwordHash: {
       type: String,
       required: true,
@@ -20,6 +28,65 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    phone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    jobTitle: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    department: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    roleDisplayName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 600,
+      trim: true,
+    },
+    avatarUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    themePreference: {
+      type: String,
+      enum: ["dark", "light", "system"],
+      default: "dark",
+    },
+    accentColor: {
+      type: String,
+      enum: ["blue", "green", "purple", "orange", "red"],
+      default: "blue",
+    },
+    notificationSettings: {
+      emailNotifications: {
+        type: Boolean,
+        default: true,
+      },
+      dashboardAlerts: {
+        type: Boolean,
+        default: true,
+      },
+      incidentUpdates: {
+        type: Boolean,
+        default: true,
+      },
+      visitorAlerts: {
+        type: Boolean,
+        default: true,
+      },
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,
@@ -66,7 +133,18 @@ userSchema.methods.toSafeObject = function toSafeObject() {
   return {
     id: this._id,
     username: this.username,
+    email: this.email,
+    name: this.fullName,
     fullName: this.fullName,
+    phone: this.phone,
+    jobTitle: this.jobTitle,
+    department: this.department,
+    roleDisplayName: this.roleDisplayName || this.role?.label || "",
+    bio: this.bio,
+    avatarUrl: this.avatarUrl,
+    themePreference: this.themePreference,
+    accentColor: this.accentColor,
+    notificationSettings: this.notificationSettings,
     status: this.status,
     expiresAt: this.expiresAt,
     role: this.role

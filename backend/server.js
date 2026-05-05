@@ -41,6 +41,7 @@ app.use("/api/employees", employeesRoutes);
 app.use("/api/incidents", incidentsRoutes);
 app.use("/api/visitors", visitorsRoutes);
 app.use("/api/access-logs", accessLogsRoutes);
+app.use("/api/access_logs", accessLogsRoutes);
 app.use("/api/inspections", inspectionsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/notifications", notificationsRoutes);
@@ -48,10 +49,28 @@ app.use("/api/audit", auditRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 const frontendDir = path.join(__dirname, "..", "frontend");
+const uploadsDir = path.join(__dirname, "uploads");
 app.use(express.static(frontendDir));
+app.use("/uploads", express.static(uploadsDir));
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(frontendDir, "pages", "login.html"));
+});
+
+app.get("/login.html", (req, res) => {
+  res.sendFile(path.join(frontendDir, "pages", "login.html"));
+});
+
+app.get("/register.html", (req, res) => {
+  res.sendFile(path.join(frontendDir, "pages", "register.html"));
+});
+
+app.get("/dashboard.html", (req, res) => {
+  res.sendFile(path.join(frontendDir, "pages", "dashboard.html"));
+});
+
+app.get("/settings.html", (req, res) => {
+  res.sendFile(path.join(frontendDir, "pages", "settings.html"));
 });
 
 app.use((req, res) => {

@@ -37,6 +37,10 @@ function mapUser(user) {
   };
 }
 
+function mapProfile(user) {
+  return user.toSafeObject ? user.toSafeObject() : mapUser(user);
+}
+
 async function findRole(roleIdOrName) {
   if (roleIdOrName && mongoose.isValidObjectId(roleIdOrName)) {
     const role = await Role.findById(roleIdOrName);
@@ -124,4 +128,97 @@ const getOptions = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getUsers, createUser, getOptions };
+const getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate("role").populate("employee");
+  res.json({ user: mapProfile(user) });
+});
+
+const updateMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate("role").populate("employee");
+  if (!user) return res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
+
+  const email = String(req.body.email || "").trim().toLowerCase();
+  if (email && email !== user.email) {
+    const duplicate = await User.findOne({ email, _id: { $ne: user._id } });
+    if (duplicate) {
+      return res.status(409).json({ message: "Энэ email өөр хэрэглэгч дээр бүртгэлтэй байна" });
+    }
+    user.email = email;
+  }
+
+  user.fullName = req.body.fullName || req.body.name || user.fullName;
+  user.phone = req.body.phone ?? user.phone;
+  user.jobTitle = req.body.jobTitle ?? user.jobTitle;
+  user.department = req.body.department ?? user.department;
+  user.roleDisplayName = req.body.roleDisplayName ?? user.roleDisplayName;
+  user.bio = req.body.bio ?? user.bio;
+
+  if (req.body.themePreference) user.themePreference = req.body.themePreference;
+  if (req.body.accentColor) user.accentColor = req.body.accentColor;
+  if (req.body.notificationSettings) {
+    user.notificationSettings = {
+      ...user.notificationSettings?.toObject?.(),
+      ...req.body.notificationSettings,
+    };
+  }
+
+  await user.save();
+  await createAudit(req, "Хэрэглэгчийн тохиргоо шинэчилсэн", "users", user._id);
+  const saved = await User.findById(user._id).populate("role").populate("employee");
+  res.json({ user: saved.toSafeObject() });
+});
+
+const updateMyPassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return res.status(400).json({ message: "Одоогийн болон шинэ нууц үгээ бүрэн оруулна уу" });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ message: "Шинэ нууц үг давталттайгаа таарахгүй байна" });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ message: "Шинэ нууц үг хамгийн багадаа 6 тэмдэгт байна" });
+  }
+
+  const user = await User.findById(req.user._id).select("+passwordHash");
+  if (!user || !(await user.matchPassword(currentPassword))) {
+    return res.status(401).json({ message: "Одоогийн нууц үг буруу байна" });
+  }
+
+  user.passwordHash = newPassword;
+  await user.save();
+  await createAudit(req, "Нууц үг шинэчилсэн", "users", user._id);
+
+  res.json({ message: "Нууц үг амжилттай шинэчлэгдлээ" });
+});
+
+const uploadMyAvatar = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "Зураг файл сонгоно уу" });
+  }
+
+  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { avatarUrl },
+    { new: true }
+  )
+    .populate("role")
+    .populate("employee");
+
+  await createAudit(req, "Профайл зураг шинэчилсэн", "users", user._id);
+  res.json({ avatarUrl, user: user.toSafeObject() });
+});
+
+module.exports = {
+  getUsers,
+  createUser,
+  getOptions,
+  getMe,
+  updateMe,
+  updateMyPassword,
+  uploadMyAvatar,
+};

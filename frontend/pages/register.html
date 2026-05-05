@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICN Security — Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <div class="toast-container" id="toastContainer"></div>
+  <main class="login-page">
+    <div class="login-wrap">
+      <section class="login-left">
+        <div class="tag"><span class="status-dot"></span>ICN — Шинэ хэрэглэгч</div>
+        <h1>ICN<br />Security<br /><em>Register</em></h1>
+        <p>Аюулгүй байдлын бүртгэлийн системд шинэ хэрэглэгч үүсгэж, role-based access control эрхээр dashboard руу нэвтэрнэ.</p>
+        <div class="db-banner"><span class="db-dot"></span><span>JWT + bcrypt + MongoDB</span></div>
+      </section>
+
+      <section class="login-card">
+        <div class="login-card-bar"></div>
+        <div class="login-card-head">
+          <div class="shield-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+            <div class="shield-ring"></div>
+          </div>
+          <div>
+            <div class="sys-tag">Create Account</div>
+            <div class="sys-name">Аюулгүй байдлын<br />бүртгэлийн систем</div>
+          </div>
+        </div>
+
+        <form onsubmit="doRegister(event)">
+          <div class="login-body">
+            <div class="status-pill"><div class="status-dot"></div><span id="clockInLogin">Ачааллаж байна...</span></div>
+            <div class="err-box hidden" id="errBox"><span id="errMsg"></span></div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Нэр</span></div>
+              <div class="inp-wrap">
+                <span class="inp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg></span>
+                <input type="text" id="registerName" placeholder="О.Энх-Од" required oninput="clearErr()" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Email</span></div>
+              <div class="inp-wrap">
+                <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><polyline points="22 6 12 13 2 6" /></svg></span>
+                <input type="email" id="registerEmail" placeholder="user@icn.mn" autocomplete="email" required oninput="clearErr()" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Нууц үг</span></div>
+              <div class="inp-wrap">
+                <span class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span>
+                <input type="password" id="registerPassword" placeholder="хамгийн багадаа 6 тэмдэгт" autocomplete="new-password" required minlength="6" oninput="clearErr()" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-top"><span class="field-label">Role</span></div>
+              <select class="form-select" id="registerRole" required>
+                <option value="viewer">viewer</option>
+                <option value="security_staff">security_staff</option>
+                <option value="shift_supervisor">shift_supervisor</option>
+                <option value="security_manager">security_manager</option>
+              </select>
+            </div>
+
+            <button class="btn-login" id="registerBtn" type="submit">БҮРТГҮҮЛЭХ</button>
+          </div>
+        </form>
+
+        <div class="login-footer">
+          <span class="footer-txt">Бүртгэлтэй хэрэглэгч?</span>
+          <a class="footer-txt" href="/login.html" style="color:var(--accent)">Нэвтрэх</a>
+        </div>
+      </section>
+
+      <aside class="login-right">
+        <div class="demo-label" style="margin-bottom:12px">Role сонголт</div>
+        <ul class="mod-list">
+          <li><span class="mod-dot" style="background:var(--cyan)"></span>viewer — тайлан харах</li>
+          <li><span class="mod-dot" style="background:var(--green)"></span>security_staff — бүртгэл үүсгэх</li>
+          <li><span class="mod-dot" style="background:var(--purple)"></span>shift_supervisor — бүртгэл хянах</li>
+          <li><span class="mod-dot" style="background:var(--accent)"></span>security_manager — удирдах</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <script src="../js/api.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/auth.js"></script>
+</body>
+</html>

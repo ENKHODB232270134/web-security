@@ -56,10 +56,10 @@
             <div class="err-box hidden" id="errBox"><span id="errMsg"></span></div>
 
             <div class="field">
-              <div class="field-top"><span class="field-label">Нэвтрэх нэр</span></div>
+              <div class="field-top"><span class="field-label">Email эсвэл username</span></div>
               <div class="inp-wrap">
                 <span class="inp-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></span>
-                <input type="text" id="loginUser" placeholder="username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()" />
+                <input type="text" id="loginUser" placeholder="admin@icn.mn" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()" oninput="clearErr()" />
               </div>
             </div>
 
@@ -78,7 +78,7 @@
           </div>
           <div class="login-footer">
             <span class="footer-txt">ICN — Мэдээлэл холбооны сүлжээ ХХК</span>
-            <span class="footer-txt">Express + MongoDB</span>
+            <a class="footer-txt" href="/register.html" style="color:var(--accent)">Бүртгүүлэх</a>
           </div>
         </div>
       </section>
@@ -100,6 +100,7 @@
     </div>
   </main>
   <script src="../js/api.js"></script>
+  <script src="../js/theme.js"></script>
   <script src="../js/app.js"></script>
   <script src="../js/auth.js"></script>
 </body>

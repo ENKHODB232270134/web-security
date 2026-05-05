@@ -8,7 +8,9 @@ Single-file `dadlaga web.html` төслийг Node.js + Express + MongoDB/Mongoo
 frontend/
   pages/
     login.html
+    register.html
     dashboard.html
+    settings.html
     incidents.html
     access-logs.html
     visitors.html
@@ -19,16 +21,20 @@ frontend/
     employees.html
     audit.html
   css/
+    styles.css
     style.css
     auth.css
     dashboard.css
     table.css
     modal.css
+    settings.css
   js/
     app.js
     auth.js
     api.js
     dashboard.js
+    theme.js
+    settings.js
     incidents.js
     visitors.js
     accessLogs.js
@@ -84,6 +90,7 @@ README.md
 
 ```bash
 npm install
+npm install multer
 ```
 
 3. Demo өгөгдөл MongoDB руу оруулна:
@@ -95,21 +102,24 @@ npm run seed
 4. Development server асаана:
 
 ```bash
-npm run dev
+npm start
 ```
 
 5. Browser дээр нээнэ:
 
 ```text
 http://localhost:5000
+http://localhost:5000/login.html
+http://localhost:5000/register.html
+http://localhost:5000/dashboard.html
 ```
 
 ## Demo accounts
 
 ```text
-admin / admin123
-manager / manager123
-staff / staff123
+admin@icn.mn / admin123
+manager@icn.mn / manager123
+staff@icn.mn / staff123
 ```
 
 ## .env
@@ -125,6 +135,7 @@ PORT=5000
 ## API endpoints
 
 ```text
+POST /api/auth/register
 POST /api/auth/login
 GET  /api/auth/me
 
@@ -140,6 +151,13 @@ DELETE /api/visitors/:id
 
 GET  /api/access-logs
 POST /api/access-logs
+PUT  /api/access-logs/:id
+DELETE /api/access-logs/:id
+
+GET    /api/inspections
+POST   /api/inspections
+PUT    /api/inspections/:id
+DELETE /api/inspections/:id
 
 GET  /api/employees
 POST /api/employees

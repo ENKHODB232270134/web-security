@@ -284,7 +284,7 @@
   border: 1px solid var(--border2);
   border-radius: 7px;
   outline: none;
-  background: var(--panel2);
+  background: var(--input-bg);
   color: var(--text);
   font-family: var(--mono);
   font-size: 13px;
@@ -330,11 +330,92 @@
   border: 0;
   border-radius: 7px;
   background: var(--accent);
-  color: #fff;
+  color: var(--button-text);
   cursor: pointer;
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+body.theme-light .login-page,
+body.theme-system.theme-resolved-light .login-page {
+  background:
+    radial-gradient(circle at 12% -10%, rgba(37, 99, 235, 0.14), transparent 30rem),
+    radial-gradient(circle at 90% 10%, rgba(124, 58, 237, 0.1), transparent 26rem),
+    linear-gradient(135deg, #f6f8fb 0%, #eef3f8 100%);
+}
+
+body.theme-light .login-card,
+body.theme-system.theme-resolved-light .login-card {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: var(--border);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+}
+
+body.theme-light .login-card-head,
+body.theme-light .login-footer,
+body.theme-system.theme-resolved-light .login-card-head,
+body.theme-system.theme-resolved-light .login-footer {
+  background: #ffffff;
+  border-color: var(--border);
+}
+
+body.theme-light .shield-icon,
+body.theme-system.theme-resolved-light .shield-icon {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+body.theme-light .stat-cards,
+body.theme-system.theme-resolved-light .stat-cards {
+  background: var(--border);
+  box-shadow: var(--shadow);
+}
+
+body.theme-light .stat-c,
+body.theme-light .demo-chip,
+body.theme-light .mod-list,
+body.theme-system.theme-resolved-light .stat-c,
+body.theme-system.theme-resolved-light .demo-chip,
+body.theme-system.theme-resolved-light .mod-list {
+  background: #ffffff;
+}
+
+body.theme-light .demo-chip:hover,
+body.theme-light .demo-chip.active,
+body.theme-system.theme-resolved-light .demo-chip:hover,
+body.theme-system.theme-resolved-light .demo-chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+body.theme-light .inp-wrap input,
+body.theme-system.theme-resolved-light .inp-wrap input {
+  background: #ffffff;
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+body.theme-light .inp-wrap input::placeholder,
+body.theme-system.theme-resolved-light .inp-wrap input::placeholder {
+  color: var(--text-soft);
+}
+
+body.theme-light .btn-login,
+body.theme-system.theme-resolved-light .btn-login {
+  background: var(--accent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+body.theme-light .btn-login:hover,
+body.theme-system.theme-resolved-light .btn-login:hover {
+  background: var(--accent2);
+}
+
+body.theme-light .mod-list li,
+body.theme-system.theme-resolved-light .mod-list li {
+  border-color: var(--border);
+  color: var(--text-muted);
 }
 
 .btn-login:disabled {

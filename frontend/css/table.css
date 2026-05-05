@@ -1,8 +1,10 @@
 .table-wrap {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel);
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 .table-toolbar {
@@ -10,9 +12,11 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 14px 18px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border);
-  background: var(--panel2);
+  background: var(--card-strong);
+  color: var(--text2);
+  font-weight: 700;
 }
 
 .search-wrap {
@@ -25,9 +29,9 @@
   width: 100%;
   padding: 8px 12px 8px 36px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 999px;
   outline: none;
-  background: var(--panel);
+  background: var(--input-bg);
   color: var(--text);
   font-family: var(--mono);
   font-size: 12px;
@@ -35,6 +39,7 @@
 
 .search-wrap input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
 .search-icon {
@@ -71,8 +76,8 @@ table {
 thead th {
   padding: 11px 16px;
   border-bottom: 1px solid var(--border);
-  background: var(--panel2);
-  color: var(--text3);
+  background: var(--card-strong);
+  color: var(--text2);
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.1em;
@@ -82,7 +87,7 @@ thead th {
 }
 
 tbody tr {
-  border-bottom: 1px solid rgba(30, 45, 69, 0.55);
+  border-bottom: 1px solid var(--border);
 }
 
 tbody tr:last-child {
@@ -90,7 +95,7 @@ tbody tr:last-child {
 }
 
 tbody tr:hover {
-  background: var(--panel2);
+  background: rgba(59, 130, 246, 0.06);
 }
 
 tbody td {
@@ -120,10 +125,45 @@ tbody td {
   gap: 12px;
   padding: 12px 18px;
   border-top: 1px solid var(--border);
-  background: var(--panel2);
+  background: var(--card-strong);
   color: var(--text3);
   font-family: var(--mono);
   font-size: 11px;
+}
+
+body.theme-light .table-wrap,
+body.theme-system.theme-resolved-light .table-wrap {
+  background: #ffffff;
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+body.theme-light .table-toolbar,
+body.theme-light .table-foot,
+body.theme-light thead th,
+body.theme-system.theme-resolved-light .table-toolbar,
+body.theme-system.theme-resolved-light .table-foot,
+body.theme-system.theme-resolved-light thead th {
+  background: #f8fafc;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+body.theme-light .search-wrap input,
+body.theme-system.theme-resolved-light .search-wrap input {
+  background: #ffffff;
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+body.theme-light tbody td,
+body.theme-system.theme-resolved-light tbody td {
+  color: var(--text-muted);
+}
+
+body.theme-light tbody tr:hover,
+body.theme-system.theme-resolved-light tbody tr:hover {
+  background: rgba(37, 99, 235, 0.045);
 }
 
 @media (max-width: 640px) {

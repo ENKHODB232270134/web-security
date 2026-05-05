@@ -124,32 +124,56 @@ async function seed() {
   const users = await User.create([
     {
       username: "admin",
+      email: "admin@icn.mn",
       passwordHash: "admin123",
       fullName: "franz",
+      phone: "9900-0001",
+      jobTitle: "Системийн Админ",
+      department: "Мэдээллийн технологи",
+      roleDisplayName: "Системийн Админ",
+      bio: "ICN Security системийн администратор.",
       role: roleByName.admin._id,
       employee: emp["EMP-001"]._id,
       status: "active",
     },
     {
       username: "manager",
+      email: "manager@icn.mn",
       passwordHash: "manager123",
       fullName: "О.Жанцанноров",
+      phone: "9900-0002",
+      jobTitle: "АБ Менежер",
+      department: "Аюулгүй байдлын алба",
+      roleDisplayName: "Аюулгүй байдлын Менежер",
+      bio: "Аюулгүй байдлын бүртгэл, тайлан, шийдвэрлэлтийг хариуцна.",
       role: roleByName.security_manager._id,
       employee: emp["EMP-002"]._id,
       status: "active",
     },
     {
       username: "staff",
+      email: "staff@icn.mn",
       passwordHash: "staff123",
       fullName: "О.Гэрэлт-Од",
+      phone: "9900-0003",
+      jobTitle: "Хамгаалалтын Ажилтан",
+      department: "Аюулгүй байдлын алба",
+      roleDisplayName: "Хамгаалалтын Ажилтан",
+      bio: "Өдөр тутмын нэвтрэлт, зочин, зөрчлийн бүртгэл хөтөлнө.",
       role: roleByName.security_staff._id,
       employee: emp["EMP-003"]._id,
       status: "active",
     },
     {
       username: "leader",
+      email: "leader@icn.mn",
       passwordHash: "leader123",
       fullName: "О.Энх-Од",
+      phone: "9900-0004",
+      jobTitle: "Ээлжийн Ахлах",
+      department: "Аюулгүй байдлын алба",
+      roleDisplayName: "Ээлжийн Ахлах",
+      bio: "Ээлжийн бүртгэл, эргүүл шалгалт, баталгаажуулалтыг хариуцна.",
       role: roleByName.shift_supervisor._id,
       employee: emp["EMP-004"]._id,
       status: "active",
@@ -456,9 +480,9 @@ async function seed() {
 
   console.log("Seed амжилттай дууслаа.");
   console.log("Demo accounts:");
-  console.log("  admin / admin123");
-  console.log("  manager / manager123");
-  console.log("  staff / staff123");
+  console.log("  admin@icn.mn / admin123");
+  console.log("  manager@icn.mn / manager123");
+  console.log("  staff@icn.mn / staff123");
   process.exit(0);
 }
 
